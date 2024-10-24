@@ -5,7 +5,7 @@
     "target": "ES2020",
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "server/src"
   },
-  "include": ["src/**/*.ts"]
+  "include": ["server/src/**/*.ts"]
 }
