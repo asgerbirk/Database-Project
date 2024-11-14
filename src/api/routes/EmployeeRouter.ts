@@ -17,7 +17,7 @@ const prisma = new PrismaClient();
  *       500:
  *         description: Internal server error occurred.
  */
-router.get("/employees", async (req: Request, res: Response) => {
+router.get("/employee", async (req: Request, res: Response) => {
   try {
     const employees = await prisma.employees.findMany({
       include: {

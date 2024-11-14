@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
-import { User } from "../types/User.js";
+import { User } from "../../types/User.js";
 
 const router = express.Router();
 

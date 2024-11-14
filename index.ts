@@ -1,11 +1,15 @@
 import express from "express";
 import "dotenv/config";
 import swaggerUi from "swagger-ui-express";
-import { swaggerSpec } from "./config/swaggerConfig.js";
-import { EmployeeRouter } from "./routes/EmployeeRouter.js";
+import { swaggerSpec } from "./src/config/swaggerConfig.js";
+import { EmployeeRouter } from "./src/api/routes/EmployeeRouter.js";
+import { connectToDatabase } from "./src/databases/neo4j/neo4jConnection.js";
+
 const app = express();
+
 app.use(express.json());
 app.use(EmployeeRouter);
+connectToDatabase();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
