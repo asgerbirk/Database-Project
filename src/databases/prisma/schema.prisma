@@ -69,7 +69,7 @@ model employees {
   EmploymentStatus                                String?       @db.VarChar(50)
   classes                                         classes[]
   departments_departments_ManagerIDToemployees    departments[] @relation("departments_ManagerIDToemployees")
-  person                                          person?       @relation(fields: [PersonId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "employees_ibfk_1")
+  person                                          person?       @relation(fields: [PersonId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "employees_ibfk_3")
   jobtitles                                       jobtitles?    @relation(fields: [JobTitleID], references: [JobTitleID], onDelete: NoAction, onUpdate: NoAction, map: "employees_ibfk_1")
   departments_employees_DepartmentIDTodepartments departments?  @relation("employees_DepartmentIDTodepartments", fields: [DepartmentID], references: [DepartmentID], onDelete: NoAction, onUpdate: NoAction, map: "employees_ibfk_2")
 
