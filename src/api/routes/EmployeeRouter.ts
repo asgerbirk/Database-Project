@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { EmployeeInput } from "../../types/input-types/EmployeeInput.js";
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -85,7 +86,7 @@ router.get("/employees/:id", async (req: Request, res: Response) => {
  * /employees:
  *   post:
  *     summary: Create a new employee
- *     description: Adds a new employee to the database.
+ *     description: Creates a new employee with associated personal and employment details.
  *     tags: [Employees]
  *     requestBody:
  *       required: true
@@ -94,8 +95,19 @@ router.get("/employees/:id", async (req: Request, res: Response) => {
  *           schema:
  *             type: object
  *             properties:
- *               PersonId:
- *                 type: integer
+ *               FirstName:
+ *                 type: string
+ *               LastName:
+ *                 type: string
+ *               Email:
+ *                 type: string
+ *               Phone:
+ *                 type: string
+ *               Address:
+ *                 type: string
+ *               DateOfBirth:
+ *                 type: string
+ *                 format: date
  *               HireDate:
  *                 type: string
  *                 format: date
@@ -109,13 +121,33 @@ router.get("/employees/:id", async (req: Request, res: Response) => {
  *                 type: string
  *     responses:
  *       201:
- *         description: Employee created successfully.
+ *         description: Employee successfully created.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 EmployeeID:
+ *                   type: integer
+ *                 PersonId:
+ *                   type: integer
+ *                 HireDate:
+ *                   type: string
+ *                   format: date
+ *                 JobTitleID:
+ *                   type: integer
+ *                 DepartmentID:
+ *                   type: integer
+ *                 Salary:
+ *                   type: number
+ *                 EmploymentStatus:
+ *                   type: string
  *       400:
- *         description: Invalid input.
+ *         description: Validation error or bad request.
  *       500:
- *         description: Internal server error occurred.
+ *         description: Internal server error.
  */
-router.post("/employees", async (req: Request, res: Response) => {
+router.post("/employees", async (req: Request<{}, {}, EmployeeInput>, res: Response) => {
   const {
     FirstName,
     LastName,
@@ -185,6 +217,20 @@ router.post("/employees", async (req: Request, res: Response) => {
  *           schema:
  *             type: object
  *             properties:
+ *               properties:
+ *               FirstName:
+ *                 type: string
+ *               LastName:
+ *                 type: string
+ *               Email:
+ *                 type: string
+ *               Phone:
+ *                 type: string
+ *               Address:
+ *                 type: string
+ *               DateOfBirth:
+ *                 type: string
+ *                 format: date
  *               HireDate:
  *                 type: string
  *                 format: date
