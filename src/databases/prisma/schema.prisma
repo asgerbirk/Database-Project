@@ -13,14 +13,11 @@ model bookings {
   ClassID     Int?
   BookingDate DateTime? @db.Date
   Status      String?   @db.VarChar(50)
-  PaymentID   Int?
   members     members?  @relation(fields: [MemberID], references: [MemberID], onDelete: NoAction, onUpdate: NoAction, map: "bookings_ibfk_1")
   classes     classes?  @relation(fields: [ClassID], references: [ClassID], onDelete: NoAction, onUpdate: NoAction, map: "bookings_ibfk_2")
-  payments    payments? @relation(fields: [PaymentID], references: [PaymentID], onDelete: NoAction, onUpdate: NoAction, map: "bookings_ibfk_3")
 
   @@index([ClassID], map: "ClassID")
   @@index([MemberID], map: "MemberID")
-  @@index([PaymentID], map: "PaymentID")
 }
 
 model centers {
@@ -36,20 +33,20 @@ model centers {
 }
 
 model classes {
-  ClassID          Int               @id @default(autoincrement())
-  ClassName        String?           @db.VarChar(100)
-  Description      String?           @db.VarChar(255)
-  ClassType        String?           @db.VarChar(50)
-  Duration         Int?
-  MaxParticipants  Int?
-  TrainerID        Int?
-  ScheduleDate     DateTime?         @db.Date
-  StartTime        DateTime?         @db.Time(0)
-  EndTime          DateTime?         @db.Time(0)
-  bookings         bookings[]
-  personaltrainers personaltrainers? @relation(fields: [TrainerID], references: [TrainerID], onDelete: NoAction, onUpdate: NoAction, map: "classes_ibfk_1")
+  ClassID         Int        @id @default(autoincrement())
+  ClassName       String?    @db.VarChar(100)
+  Description     String?    @db.VarChar(255)
+  ClassType       String?    @db.VarChar(50)
+  Duration        Int?
+  MaxParticipants Int?
+  EmployeeID      Int?
+  ScheduleDate    DateTime?  @db.Date
+  StartTime       DateTime?  @db.Time(0)
+  EndTime         DateTime?  @db.Time(0)
+  bookings        bookings[]
+  employees       employees? @relation(fields: [EmployeeID], references: [EmployeeID], onDelete: NoAction, onUpdate: NoAction, map: "classes_ibfk_1")
 
-  @@index([TrainerID], map: "TrainerID")
+  @@index([EmployeeID], map: "EmployeeID")
 }
 
 model departments {
@@ -64,23 +61,21 @@ model departments {
 
 model employees {
   EmployeeID                                      Int           @id @default(autoincrement())
-  FirstName                                       String?       @db.VarChar(100)
-  LastName                                        String?       @db.VarChar(100)
-  Email                                           String?       @unique(map: "Email") @db.VarChar(100)
-  Phone                                           String?       @db.VarChar(15)
-  Address                                         String?       @db.VarChar(255)
-  DateOfBirth                                     DateTime?     @db.Date
+  PersonId                                        Int?
   HireDate                                        DateTime?     @db.Date
   JobTitleID                                      Int?
   DepartmentID                                    Int?
   Salary                                          Decimal?      @db.Decimal(10, 2)
   EmploymentStatus                                String?       @db.VarChar(50)
+  classes                                         classes[]
   departments_departments_ManagerIDToemployees    departments[] @relation("departments_ManagerIDToemployees")
+  person                                          person?       @relation(fields: [PersonId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "employees_ibfk_1")
   jobtitles                                       jobtitles?    @relation(fields: [JobTitleID], references: [JobTitleID], onDelete: NoAction, onUpdate: NoAction, map: "employees_ibfk_1")
   departments_employees_DepartmentIDTodepartments departments?  @relation("employees_DepartmentIDTodepartments", fields: [DepartmentID], references: [DepartmentID], onDelete: NoAction, onUpdate: NoAction, map: "employees_ibfk_2")
 
   @@index([DepartmentID], map: "DepartmentID")
   @@index([JobTitleID], map: "JobTitleID")
+  @@index([PersonId], map: "PersonId")
 }
 
 model equipment {
@@ -107,20 +102,17 @@ model jobtitles {
 
 model members {
   MemberID         Int          @id @default(autoincrement())
-  FirstName        String?      @db.VarChar(100)
-  LastName         String?      @db.VarChar(100)
-  Email            String?      @unique(map: "Email") @db.VarChar(100)
-  Phone            String?      @db.VarChar(15)
-  Address          String?      @db.VarChar(255)
-  DateOfBirth      DateTime?    @db.Date
+  PersonId         Int?
   JoinDate         DateTime?    @db.Date
   MembershipID     Int?
   EmergencyContact String?      @db.VarChar(15)
   bookings         bookings[]
   memberships      memberships? @relation(fields: [MembershipID], references: [MembershipID], onDelete: NoAction, onUpdate: NoAction, map: "members_ibfk_1")
+  person           person?      @relation(fields: [PersonId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "members_ibfk_2")
   payments         payments[]
 
   @@index([MembershipID], map: "MembershipID")
+  @@index([PersonId], map: "PersonId")
 }
 
 model memberships {
@@ -142,35 +134,42 @@ model payments {
   PaymentMethod String?    @db.VarChar(50)
   PaymentType   String?    @db.VarChar(50)
   Status        String?    @db.VarChar(50)
-  bookings      bookings[]
   members       members?   @relation(fields: [MemberID], references: [MemberID], onDelete: NoAction, onUpdate: NoAction, map: "payments_ibfk_1")
+  products      products[]
 
   @@index([MemberID], map: "MemberID")
 }
 
-model personaltrainers {
-  TrainerID            Int       @id @default(autoincrement())
-  FirstName            String?   @db.VarChar(100)
-  LastName             String?   @db.VarChar(100)
-  Phone                String?   @db.VarChar(15)
-  Email                String?   @unique(map: "Email") @db.VarChar(100)
-  Specialization       String?   @db.VarChar(255)
-  YearsOfExperience    Int?
-  CertificationDetails String?   @db.VarChar(255)
-  classes              classes[]
-}
-
 model productcategories {
-  CategoryID   Int     @id @default(autoincrement())
-  CategoryName String? @db.VarChar(100)
-  Description  String? @db.VarChar(255)
+  CategoryID   Int        @id @default(autoincrement())
+  CategoryName String?    @db.VarChar(100)
+  Description  String?    @db.VarChar(255)
+  products     products[]
 }
 
 model products {
-  ProductID     Int      @id @default(autoincrement())
-  ProductName   String?  @db.VarChar(100)
-  Description   String?  @db.VarChar(255)
-  Price         Decimal? @db.Decimal(10, 2)
-  StockQuantity Int?
-  CategoryID    Int?
+  ProductID         Int                @id @default(autoincrement())
+  ProductName       String?            @db.VarChar(100)
+  Description       String?            @db.VarChar(255)
+  Price             Decimal?           @db.Decimal(10, 2)
+  StockQuantity     Int?
+  CategoryID        Int?
+  PaymentID         Int?
+  productcategories productcategories? @relation(fields: [CategoryID], references: [CategoryID], onDelete: NoAction, onUpdate: NoAction, map: "products_ibfk_1")
+  payments          payments?          @relation(fields: [PaymentID], references: [PaymentID], onDelete: NoAction, onUpdate: NoAction, map: "products_ibfk_2")
+
+  @@index([CategoryID], map: "CategoryID")
+  @@index([PaymentID], map: "PaymentID")
+}
+
+model person {
+  Id          Int         @id @default(autoincrement())
+  FirstName   String?     @db.VarChar(100)
+  LastName    String?     @db.VarChar(100)
+  Email       String?     @unique(map: "Email") @db.VarChar(100)
+  Phone       String?     @db.VarChar(15)
+  Address     String?     @db.VarChar(255)
+  DateOfBirth DateTime?   @db.Date
+  employees   employees[]
+  members     members[]
 }
