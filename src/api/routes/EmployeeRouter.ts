@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
+import { authenticateToken } from "../middleware/Authentication.js";
 
 const router = express.Router();
 
@@ -17,17 +18,37 @@ const prisma = new PrismaClient();
  *       500:
  *         description: Internal server error occurred.
  */
-router.get("/employee", async (req: Request, res: Response) => {
+router.get(
+  "/employee",
+  authenticateToken,
+  async (req: Request, res: Response) => {
+    try {
+      const employees = await prisma.employees.findMany({
+        include: {
+          jobtitles: true,
+          departments_employees_DepartmentIDTodepartments: true,
+          departments_departments_ManagerIDToemployees: true,
+          person: true,
+        },
+      });
+      console.log(employees);
+      res.send(employees);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({ error: "Failed to get employees" });
+    }
+  }
+);
+
+router.get("/members", async (req: Request, res: Response) => {
   try {
-    const employees = await prisma.employees.findMany({
+    const members = await prisma.members.findMany({
       include: {
-        jobtitles: true,
-        departments_employees_DepartmentIDTodepartments: true,
-        departments_departments_ManagerIDToemployees: true,
+        person: true,
       },
     });
-    console.log(employees);
-    res.send(employees);
+    console.log(members);
+    res.send(members);
   } catch (error) {
     console.log(error);
     res.status(500).send({ error: "Failed to get employees" });
