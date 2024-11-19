@@ -167,6 +167,7 @@ model person {
   FirstName   String?     @db.VarChar(100)
   LastName    String?     @db.VarChar(100)
   Email       String?     @unique(map: "Email") @db.VarChar(100)
+  Password    String?     @db.VarChar(100)
   Phone       String?     @db.VarChar(15)
   Address     String?     @db.VarChar(255)
   DateOfBirth DateTime?   @db.Date

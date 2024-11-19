@@ -147,54 +147,55 @@ router.get("/employees/:id", async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error.
  */
-router.post("/employees", async (req: Request<{}, {}, EmployeeInput>, res: Response) => {
-  const {
-    FirstName,
-    LastName,
-    Email,
-    Phone,
-    Address,
-    DateOfBirth,
-    HireDate,
-    JobTitleID,
-    DepartmentID,
-    Salary,
-    EmploymentStatus,
-  } = req.body;
+router.post(
+  "/employees",
+  async (req: Request<{}, {}, EmployeeInput>, res: Response) => {
+    const {
+      FirstName,
+      LastName,
+      Email,
+      Phone,
+      Address,
+      DateOfBirth,
+      HireDate,
+      JobTitleID,
+      DepartmentID,
+      Salary,
+      EmploymentStatus,
+    } = req.body;
 
-  try {
-    // Check if the person already exists based on Email
-    let person = await prisma.person.findUnique({
-      where: { Email },
-    });
-
-    // If person doesn't exist, create a new one
-    if (!person) {
-      person = await prisma.person.create({
-        data: { FirstName, LastName, Email, Phone, Address, DateOfBirth },
+    try {
+      // Check if the person already exists based on Email
+      let person = await prisma.person.findUnique({
+        where: { Email },
       });
+
+      // If person doesn't exist, create a new one
+      if (!person) {
+        person = await prisma.person.create({
+          data: { FirstName, LastName, Email, Phone, Address, DateOfBirth },
+        });
+      }
+
+      // Create the employee with the PersonId from the person record
+      const newEmployee = await prisma.employees.create({
+        data: {
+          PersonId: person.Id,
+          HireDate,
+          JobTitleID,
+          DepartmentID,
+          Salary,
+          EmploymentStatus,
+        },
+      });
+
+      res.status(201).send(newEmployee);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ error: "Failed to create employee" });
     }
-
-    // Create the employee with the PersonId from the person record
-    const newEmployee = await prisma.employees.create({
-      data: {
-        PersonId: person.Id,
-        HireDate,
-        JobTitleID,
-        DepartmentID,
-        Salary,
-        EmploymentStatus,
-      },
-    });
-
-    res.status(201).send(newEmployee);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Failed to create employee" });
   }
-});
-
-
+);
 
 /**
  * @swagger
@@ -252,7 +253,8 @@ router.post("/employees", async (req: Request<{}, {}, EmployeeInput>, res: Respo
  */
 router.put("/employees/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { HireDate, JobTitleID, DepartmentID, Salary, EmploymentStatus } = req.body;
+  const { HireDate, JobTitleID, DepartmentID, Salary, EmploymentStatus } =
+    req.body;
   try {
     const updatedEmployee = await prisma.employees.update({
       where: { EmployeeID: parseInt(id) },
