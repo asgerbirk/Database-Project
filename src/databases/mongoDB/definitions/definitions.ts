@@ -1,9 +1,7 @@
-// MongoDB Collections Definition for Equivalent SQL Tables
-
 import { ObjectId } from 'mongodb';
 
-// 1. Person Collection
-export interface Person {
+// 1. User Collection (Combining Person, Member, Employee)
+export interface User {
   _id: ObjectId; // MongoDB ObjectId
   firstName: string;
   lastName: string;
@@ -11,9 +9,20 @@ export interface Person {
   phone: string;
   address: string;
   dateOfBirth: Date;
+  roles: UserRole; // Array of roles (e.g., ['member', 'employee'])
+  joinDate?: Date; // For members
+  membershipId?: ObjectId; // Reference to Membership _id, for members
+  emergencyContact?: string; // For members
+  hireDate?: Date; // For employees
+  jobTitleId?: ObjectId; // Reference to JobTitle _id, for employees
+  departmentId?: ObjectId; // Reference to Department _id, for employees
+  salary?: number; // For employees
+  employmentStatus?: string; // For employees
 }
 
-// 2. Centers Collection
+export type UserRole = 'member' | 'employee' | 'manager';
+
+// 2. Center Collection (Combining Centers and Departments)
 export interface Center {
   _id: ObjectId; // MongoDB ObjectId
   centerName: string;
@@ -23,54 +32,24 @@ export interface Center {
   openingHours: string;
   managerName: string;
   facilities: string;
+  departments: Department[]; // Embedded departments
 }
 
-// 3. JobTitles Collection
-export interface JobTitle {
-  _id: ObjectId; // MongoDB ObjectId
-  jobTitleName: string;
-  description: string;
-}
-
-// 4. Departments Collection
 export interface Department {
-  _id: ObjectId; // MongoDB ObjectId
   departmentName: string;
-  managerId?: ObjectId; // Reference to Employees _id
 }
 
-// 5. Memberships Collection
+// 3. Membership Collection
 export interface Membership {
   _id: ObjectId; // MongoDB ObjectId
   membershipName: string;
   pricePerMonth: number;
-  accessLevel: string;
-  duration: string;
+  duration: string; // e.g., '1 month', '3 months', '6 months', '12 months'
   maxClassBookings: number;
   description: string;
 }
 
-// 6. Members Collection
-export interface Member {
-  _id: ObjectId; // MongoDB ObjectId
-  personId: ObjectId; // Reference to Person _id
-  joinDate: Date;
-  membershipId: ObjectId; // Reference to Membership _id
-  emergencyContact: string;
-}
-
-// 7. Employees Collection
-export interface Employee {
-  _id: ObjectId; // MongoDB ObjectId
-  personId: ObjectId; // Reference to Person _id
-  hireDate: Date;
-  jobTitleId: ObjectId; // Reference to JobTitle _id
-  departmentId: ObjectId; // Reference to Department _id
-  salary: number;
-  employmentStatus: string;
-}
-
-// 8. Classes Collection
+// 4. Class Collection (Combining Classes and Bookings)
 export interface Class {
   _id: ObjectId; // MongoDB ObjectId
   className: string;
@@ -78,16 +57,38 @@ export interface Class {
   classType: string;
   duration: number;
   maxParticipants: number;
-  employeeId: ObjectId; // Reference to Employee _id
+  instructorId: ObjectId; // Reference to User _id (who is an employee)
   scheduleDate: Date;
   startTime: string; // Stored as string in ISO 8601 format (e.g., "09:00:00")
   endTime: string; // Stored as string in ISO 8601 format
+  bookings: Booking[]; // Embedded bookings
 }
 
-// 9. Payments Collection
+export interface Booking {
+  bookingDate: Date;
+  status: string;
+}
+
+// 5. Product Collection (Combining Products and Categories)
+export interface Product {
+  _id: ObjectId; // MongoDB ObjectId
+  productName: string;
+  description: string;
+  price: number;
+  stockQuantity: number;
+  category: ProductCategory; // Embedded category
+  paymentId?: ObjectId; // Optional Reference to Payment _id (if applicable)
+}
+
+export interface ProductCategory {
+  categoryName: string;
+  description: string;
+}
+
+// 6. Payment Collection
 export interface Payment {
   _id: ObjectId; // MongoDB ObjectId
-  memberId: ObjectId; // Reference to Member _id
+  userId: ObjectId; // Reference to User _id
   paymentDate: Date;
   amount: number;
   paymentMethod: string;
@@ -95,34 +96,7 @@ export interface Payment {
   status: string;
 }
 
-// 10. Bookings Collection
-export interface Booking {
-  _id: ObjectId; // MongoDB ObjectId
-  memberId: ObjectId; // Reference to Member _id
-  classId: ObjectId; // Reference to Class _id
-  bookingDate: Date;
-  status: string;
-}
-
-// 11. ProductCategories Collection
-export interface ProductCategory {
-  _id: ObjectId; // MongoDB ObjectId
-  categoryName: string;
-  description: string;
-}
-
-// 12. Products Collection
-export interface Product {
-  _id: ObjectId; // MongoDB ObjectId
-  productName: string;
-  description: string;
-  price: number;
-  stockQuantity: number;
-  categoryId: ObjectId; // Reference to ProductCategory _id
-  paymentId?: ObjectId; // Optional Reference to Payment _id (if applicable)
-}
-
-// 13. Equipment Collection
+// 7. Equipment Collection
 export interface Equipment {
   _id: ObjectId; // MongoDB ObjectId
   machineName: string;
