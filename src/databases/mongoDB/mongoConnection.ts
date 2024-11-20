@@ -15,8 +15,8 @@ async function mongodbConnect() {
   try {
     await client.connect();
     console.log('Connected to MongoDB');
-    const db = client.db('zando-fitness');
-    console.log('Database Name:', db.databaseName);
+    const mongo = client.db('zando-fitness');
+    console.log('Database Name:', mongo.databaseName);
     return client.db();
   } catch (error) {
     console.error('Failed to connect to MongoDB', error);
