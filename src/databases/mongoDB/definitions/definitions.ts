@@ -44,6 +44,7 @@ export interface Membership {
   _id: ObjectId; // MongoDB ObjectId
   membershipName: string;
   pricePerMonth: number;
+  accessLevel: string;
   duration: string; // e.g., '1 month', '3 months', '6 months', '12 months'
   maxClassBookings: number;
   description: string;
