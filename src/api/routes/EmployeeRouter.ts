@@ -57,29 +57,33 @@ router.get("/employees", async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error occurred.
  */
-router.get("/employees/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  try {
-    const employee = await prisma.employees.findUnique({
-      where: { EmployeeID: parseInt(id) },
-      include: {
-        jobtitles: true,
-        person: true,
-        departments_employees_DepartmentIDTodepartments: true,
-        departments_departments_ManagerIDToemployees: true,
-      },
-    });
+router.get(
+  "/employees/:id",
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
 
-    if (!employee) {
-      return res.status(404).send({ error: "Employee not found" });
+      const employee = await prisma.employees.findUnique({
+        where: { EmployeeID: parseInt(id) },
+        include: {
+          jobtitles: true,
+          person: true,
+          departments_employees_DepartmentIDTodepartments: true,
+          departments_departments_ManagerIDToemployees: true,
+        },
+      });
+
+      if (!employee) {
+        res.status(404).send({ error: "Employee not found" });
+      }
+
+      res.send(employee);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ error: "Failed to get employee" });
     }
-
-    res.send(employee);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Failed to get employee" });
   }
-});
+);
 
 /**
  * @swagger

@@ -53,27 +53,30 @@ router.get("/products", async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error.
  */
-router.get("/products/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.get(
+  "/products/:id",
+  async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
 
-  try {
-    const product = await prisma.products.findUnique({
-      where: { ProductID: parseInt(id) },
-      include: {
-        productcategories: true,
-      },
-    });
+    try {
+      const product = await prisma.products.findUnique({
+        where: { ProductID: parseInt(id) },
+        include: {
+          productcategories: true,
+        },
+      });
 
-    if (!product) {
-      return res.status(404).send({ error: "Product not found" });
+      if (!product) {
+        res.status(404).send({ error: "Product not found" });
+      }
+
+      res.status(200).send(product);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ error: "Failed to retrieve product" });
     }
-
-    res.status(200).send(product);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Failed to retrieve product" });
   }
-});
+);
 
 /**
  * @swagger
@@ -111,11 +114,25 @@ router.get("/products/:id", async (req: Request, res: Response) => {
  *         description: Internal server error.
  */
 router.post("/products", async (req: Request, res: Response) => {
-  const { ProductName, Description, Price, StockQuantity, CategoryID, PaymentID } = req.body;
+  const {
+    ProductName,
+    Description,
+    Price,
+    StockQuantity,
+    CategoryID,
+    PaymentID,
+  } = req.body;
 
   try {
     const newProduct = await prisma.products.create({
-      data: { ProductName, Description, Price, StockQuantity, CategoryID, PaymentID },
+      data: {
+        ProductName,
+        Description,
+        Price,
+        StockQuantity,
+        CategoryID,
+        PaymentID,
+      },
     });
 
     res.status(201).send(newProduct);
@@ -167,25 +184,42 @@ router.post("/products", async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error.
  */
-router.put("/products/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { ProductName, Description, Price, StockQuantity, CategoryID, PaymentID } = req.body;
+router.put(
+  "/products/:id",
+  async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const {
+      ProductName,
+      Description,
+      Price,
+      StockQuantity,
+      CategoryID,
+      PaymentID,
+    } = req.body;
 
-  try {
-    const updatedProduct = await prisma.products.update({
-      where: { ProductID: parseInt(id) },
-      data: { ProductName, Description, Price, StockQuantity, CategoryID, PaymentID },
-    });
+    try {
+      const updatedProduct = await prisma.products.update({
+        where: { ProductID: parseInt(id) },
+        data: {
+          ProductName,
+          Description,
+          Price,
+          StockQuantity,
+          CategoryID,
+          PaymentID,
+        },
+      });
 
-    res.status(200).send(updatedProduct);
-  } catch (error) {
-    if (error.code === "P2025") {
-      return res.status(404).send({ error: "Product not found" });
+      res.status(200).send(updatedProduct);
+    } catch (error) {
+      if (error.code === "P2025") {
+        res.status(404).send({ error: "Product not found" });
+      }
+      console.error(error);
+      res.status(500).send({ error: "Failed to update product" });
     }
-    console.error(error);
-    res.status(500).send({ error: "Failed to update product" });
   }
-});
+);
 
 /**
  * @swagger
@@ -209,22 +243,25 @@ router.put("/products/:id", async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error.
  */
-router.delete("/products/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.delete(
+  "/products/:id",
+  async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
 
-  try {
-    await prisma.products.delete({
-      where: { ProductID: parseInt(id) },
-    });
+    try {
+      await prisma.products.delete({
+        where: { ProductID: parseInt(id) },
+      });
 
-    res.status(204).send();
-  } catch (error) {
-    if (error.code === "P2025") {
-      return res.status(404).send({ error: "Product not found" });
+      res.status(204).send();
+    } catch (error) {
+      if (error.code === "P2025") {
+        res.status(404).send({ error: "Product not found" });
+      }
+      console.error(error);
+      res.status(500).send({ error: "Failed to delete product" });
     }
-    console.error(error);
-    res.status(500).send({ error: "Failed to delete product" });
   }
-});
+);
 
 export { router as ProductRouter };

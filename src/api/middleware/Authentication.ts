@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 
 const JWT_SECRET = process.env.JWT_TOKEN;
-console.log(JWT_SECRET);
 
 export function authenticateToken(
   req: Request,
