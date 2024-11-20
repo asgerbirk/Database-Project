@@ -49,24 +49,27 @@ router.get("/memberships", async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error.
  */
-router.get("/memberships/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.get(
+  "/memberships/:id",
+  async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
 
-  try {
-    const membership = await prisma.memberships.findUnique({
-      where: { MembershipID: parseInt(id) },
-    });
+    try {
+      const membership = await prisma.memberships.findUnique({
+        where: { MembershipID: parseInt(id) },
+      });
 
-    if (!membership) {
-      return res.status(404).send({ error: "Membership not found" });
+      if (!membership) {
+        res.status(404).send({ error: "Membership not found" });
+      }
+
+      res.status(200).send(membership);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ error: "Failed to retrieve membership" });
     }
-
-    res.status(200).send(membership);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Failed to retrieve membership" });
   }
-});
+);
 
 /**
  * @swagger
@@ -104,11 +107,25 @@ router.get("/memberships/:id", async (req: Request, res: Response) => {
  *         description: Internal server error.
  */
 router.post("/memberships", async (req: Request, res: Response) => {
-  const { MembershipName, PricePerMonth, AccessLevel, Duration, MaxClassBookings, Description } = req.body;
+  const {
+    MembershipName,
+    PricePerMonth,
+    AccessLevel,
+    Duration,
+    MaxClassBookings,
+    Description,
+  } = req.body;
 
   try {
     const newMembership = await prisma.memberships.create({
-      data: { MembershipName, PricePerMonth, AccessLevel, Duration, MaxClassBookings, Description },
+      data: {
+        MembershipName,
+        PricePerMonth,
+        AccessLevel,
+        Duration,
+        MaxClassBookings,
+        Description,
+      },
     });
 
     res.status(201).send(newMembership);
@@ -160,25 +177,42 @@ router.post("/memberships", async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error.
  */
-router.put("/memberships/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { MembershipName, PricePerMonth, AccessLevel, Duration, MaxClassBookings, Description } = req.body;
+router.put(
+  "/memberships/:id",
+  async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const {
+      MembershipName,
+      PricePerMonth,
+      AccessLevel,
+      Duration,
+      MaxClassBookings,
+      Description,
+    } = req.body;
 
-  try {
-    const updatedMembership = await prisma.memberships.update({
-      where: { MembershipID: parseInt(id) },
-      data: { MembershipName, PricePerMonth, AccessLevel, Duration, MaxClassBookings, Description },
-    });
+    try {
+      const updatedMembership = await prisma.memberships.update({
+        where: { MembershipID: parseInt(id) },
+        data: {
+          MembershipName,
+          PricePerMonth,
+          AccessLevel,
+          Duration,
+          MaxClassBookings,
+          Description,
+        },
+      });
 
-    res.status(200).send(updatedMembership);
-  } catch (error) {
-    if (error.code === "P2025") {
-      return res.status(404).send({ error: "Membership not found" });
+      res.status(200).send(updatedMembership);
+    } catch (error) {
+      if (error.code === "P2025") {
+        res.status(404).send({ error: "Membership not found" });
+      }
+      console.error(error);
+      res.status(500).send({ error: "Failed to update membership" });
     }
-    console.error(error);
-    res.status(500).send({ error: "Failed to update membership" });
   }
-});
+);
 
 /**
  * @swagger
@@ -202,22 +236,25 @@ router.put("/memberships/:id", async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error.
  */
-router.delete("/memberships/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.delete(
+  "/memberships/:id",
+  async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
 
-  try {
-    await prisma.memberships.delete({
-      where: { MembershipID: parseInt(id) },
-    });
+    try {
+      await prisma.memberships.delete({
+        where: { MembershipID: parseInt(id) },
+      });
 
-    res.status(204).send();
-  } catch (error) {
-    if (error.code === "P2025") {
-      return res.status(404).send({ error: "Membership not found" });
+      res.status(204).send();
+    } catch (error) {
+      if (error.code === "P2025") {
+        res.status(404).send({ error: "Membership not found" });
+      }
+      console.error(error);
+      res.status(500).send({ error: "Failed to delete membership" });
     }
-    console.error(error);
-    res.status(500).send({ error: "Failed to delete membership" });
   }
-});
+);
 
 export { router as MembershipRouter };

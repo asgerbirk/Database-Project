@@ -96,7 +96,7 @@ export async function refreshToken(data: { token: string }) {
     };
 
     const newAccessToken = jwt.sign(
-      { userId: payload.userId, username: payload.email },
+      { userId: payload.userId, email: payload.email },
       JWT_SECRET,
       {
         expiresIn: JWT_EXPIRATION,

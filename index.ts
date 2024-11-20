@@ -17,8 +17,8 @@ app.use(cors());
 app.use(EmployeeRouter);
 app.use(MembershipRouter);
 app.use(ProductRouter);
-connectToDatabase();
-mongodbConnect();
+//connectToDatabase();
+//mongodbConnect();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
