@@ -1,9 +1,15 @@
-import express, { Request, Response, NextFunction } from "express";
-import { PrismaClient } from "@prisma/client";
-import { User } from "../../types/User.js";
+import { Router } from "express";
+import {
+  register,
+  login,
+  refreshToken,
+} from "../controllers/AuthenticationController.js";
 
-const router = express.Router();
+const router = Router();
+router.post("/register", register);
 
-const prisma = new PrismaClient();
+router.post("/login", login);
 
-router.post("/users", async (req: Request, res: Response) => {});
+router.post("/refreshToken", refreshToken);
+
+export default router;

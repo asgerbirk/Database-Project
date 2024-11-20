@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { EmployeeInput } from "../../types/input-types/EmployeeInput.js";
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -85,7 +86,7 @@ router.get("/employees/:id", async (req: Request, res: Response) => {
  * /employees:
  *   post:
  *     summary: Create a new employee
- *     description: Adds a new employee to the database.
+ *     description: Creates a new employee with associated personal and employment details.
  *     tags: [Employees]
  *     requestBody:
  *       required: true
@@ -94,8 +95,19 @@ router.get("/employees/:id", async (req: Request, res: Response) => {
  *           schema:
  *             type: object
  *             properties:
- *               PersonId:
- *                 type: integer
+ *               FirstName:
+ *                 type: string
+ *               LastName:
+ *                 type: string
+ *               Email:
+ *                 type: string
+ *               Phone:
+ *                 type: string
+ *               Address:
+ *                 type: string
+ *               DateOfBirth:
+ *                 type: string
+ *                 format: date
  *               HireDate:
  *                 type: string
  *                 format: date
@@ -109,60 +121,81 @@ router.get("/employees/:id", async (req: Request, res: Response) => {
  *                 type: string
  *     responses:
  *       201:
- *         description: Employee created successfully.
+ *         description: Employee successfully created.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 EmployeeID:
+ *                   type: integer
+ *                 PersonId:
+ *                   type: integer
+ *                 HireDate:
+ *                   type: string
+ *                   format: date
+ *                 JobTitleID:
+ *                   type: integer
+ *                 DepartmentID:
+ *                   type: integer
+ *                 Salary:
+ *                   type: number
+ *                 EmploymentStatus:
+ *                   type: string
  *       400:
- *         description: Invalid input.
+ *         description: Validation error or bad request.
  *       500:
- *         description: Internal server error occurred.
+ *         description: Internal server error.
  */
-router.post("/employees", async (req: Request, res: Response) => {
-  const {
-    FirstName,
-    LastName,
-    Email,
-    Phone,
-    Address,
-    DateOfBirth,
-    HireDate,
-    JobTitleID,
-    DepartmentID,
-    Salary,
-    EmploymentStatus,
-  } = req.body;
+router.post(
+  "/employees",
+  async (req: Request<{}, {}, EmployeeInput>, res: Response) => {
+    const {
+      FirstName,
+      LastName,
+      Email,
+      Phone,
+      Address,
+      DateOfBirth,
+      HireDate,
+      JobTitleID,
+      DepartmentID,
+      Salary,
+      EmploymentStatus,
+    } = req.body;
 
-  try {
-    // Check if the person already exists based on Email
-    let person = await prisma.person.findUnique({
-      where: { Email },
-    });
-
-    // If person doesn't exist, create a new one
-    if (!person) {
-      person = await prisma.person.create({
-        data: { FirstName, LastName, Email, Phone, Address, DateOfBirth },
+    try {
+      // Check if the person already exists based on Email
+      let person = await prisma.person.findUnique({
+        where: { Email },
       });
+
+      // If person doesn't exist, create a new one
+      if (!person) {
+        person = await prisma.person.create({
+          data: { FirstName, LastName, Email, Phone, Address, DateOfBirth },
+        });
+      }
+
+      // Create the employee with the PersonId from the person record
+      const newEmployee = await prisma.employees.create({
+        data: {
+          PersonId: person.Id,
+          HireDate,
+          JobTitleID,
+          DepartmentID,
+          Salary,
+          EmploymentStatus,
+        },
+      });
+
+      res.status(201).send(newEmployee);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ error: "Failed to create employee" });
     }
-
-    // Create the employee with the PersonId from the person record
-    const newEmployee = await prisma.employees.create({
-      data: {
-        PersonId: person.Id,
-        HireDate,
-        JobTitleID,
-        DepartmentID,
-        Salary,
-        EmploymentStatus,
-      },
-    });
-
-    res.status(201).send(newEmployee);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Failed to create employee" });
   }
-});
-
-
+);
 
 /**
  * @swagger
@@ -185,6 +218,20 @@ router.post("/employees", async (req: Request, res: Response) => {
  *           schema:
  *             type: object
  *             properties:
+ *               properties:
+ *               FirstName:
+ *                 type: string
+ *               LastName:
+ *                 type: string
+ *               Email:
+ *                 type: string
+ *               Phone:
+ *                 type: string
+ *               Address:
+ *                 type: string
+ *               DateOfBirth:
+ *                 type: string
+ *                 format: date
  *               HireDate:
  *                 type: string
  *                 format: date
@@ -206,7 +253,8 @@ router.post("/employees", async (req: Request, res: Response) => {
  */
 router.put("/employees/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { HireDate, JobTitleID, DepartmentID, Salary, EmploymentStatus } = req.body;
+  const { HireDate, JobTitleID, DepartmentID, Salary, EmploymentStatus } =
+    req.body;
   try {
     const updatedEmployee = await prisma.employees.update({
       where: { EmployeeID: parseInt(id) },
