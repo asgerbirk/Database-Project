@@ -1,7 +1,10 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
-import { error } from "console";
+
+//ny tabel user, indeholde password og email
+//Data stored in cookie or other form (localStorage etc.)
+//fil upload.
 
 const prisma = new PrismaClient();
 
