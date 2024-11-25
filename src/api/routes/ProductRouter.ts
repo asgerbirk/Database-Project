@@ -1,8 +1,7 @@
 import express, { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
+import { Add, Delete, getAll, getById, Update } from "../controllers/ProductController.js";
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 /**
  * @swagger
@@ -17,19 +16,7 @@ const prisma = new PrismaClient();
  *       500:
  *         description: Internal server error.
  */
-router.get("/products", async (req: Request, res: Response) => {
-  try {
-    const products = await prisma.products.findMany({
-      include: {
-        productcategories: true,
-      },
-    });
-    res.status(200).send(products);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Failed to retrieve products" });
-  }
-});
+router.get("/products", getAll);
 
 /**
  * @swagger
@@ -55,28 +42,7 @@ router.get("/products", async (req: Request, res: Response) => {
  */
 router.get(
   "/products/:id",
-  async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
-
-    try {
-      const product = await prisma.products.findUnique({
-        where: { ProductID: parseInt(id) },
-        include: {
-          productcategories: true,
-        },
-      });
-
-      if (!product) {
-        res.status(404).send({ error: "Product not found" });
-      }
-
-      res.status(200).send(product);
-    } catch (error) {
-      console.error(error);
-      res.status(500).send({ error: "Failed to retrieve product" });
-    }
-  }
-);
+ getById);
 
 /**
  * @swagger
@@ -103,8 +69,6 @@ router.get(
  *                 type: integer
  *               CategoryID:
  *                 type: integer
- *               PaymentID:
- *                 type: integer
  *     responses:
  *       201:
  *         description: Product created successfully.
@@ -113,34 +77,7 @@ router.get(
  *       500:
  *         description: Internal server error.
  */
-router.post("/products", async (req: Request, res: Response) => {
-  const {
-    ProductName,
-    Description,
-    Price,
-    StockQuantity,
-    CategoryID,
-    PaymentID,
-  } = req.body;
-
-  try {
-    const newProduct = await prisma.products.create({
-      data: {
-        ProductName,
-        Description,
-        Price,
-        StockQuantity,
-        CategoryID,
-        PaymentID,
-      },
-    });
-
-    res.status(201).send(newProduct);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Failed to create product" });
-  }
-});
+router.post("/products", Add);
 
 /**
  * @swagger
@@ -174,8 +111,6 @@ router.post("/products", async (req: Request, res: Response) => {
  *                 type: integer
  *               CategoryID:
  *                 type: integer
- *               PaymentID:
- *                 type: integer
  *     responses:
  *       200:
  *         description: Product updated successfully.
@@ -186,40 +121,7 @@ router.post("/products", async (req: Request, res: Response) => {
  */
 router.put(
   "/products/:id",
-  async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
-    const {
-      ProductName,
-      Description,
-      Price,
-      StockQuantity,
-      CategoryID,
-      PaymentID,
-    } = req.body;
-
-    try {
-      const updatedProduct = await prisma.products.update({
-        where: { ProductID: parseInt(id) },
-        data: {
-          ProductName,
-          Description,
-          Price,
-          StockQuantity,
-          CategoryID,
-          PaymentID,
-        },
-      });
-
-      res.status(200).send(updatedProduct);
-    } catch (error) {
-      if (error.code === "P2025") {
-        res.status(404).send({ error: "Product not found" });
-      }
-      console.error(error);
-      res.status(500).send({ error: "Failed to update product" });
-    }
-  }
-);
+  Update);
 
 /**
  * @swagger
@@ -245,23 +147,6 @@ router.put(
  */
 router.delete(
   "/products/:id",
-  async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
-
-    try {
-      await prisma.products.delete({
-        where: { ProductID: parseInt(id) },
-      });
-
-      res.status(204).send();
-    } catch (error) {
-      if (error.code === "P2025") {
-        res.status(404).send({ error: "Product not found" });
-      }
-      console.error(error);
-      res.status(500).send({ error: "Failed to delete product" });
-    }
-  }
-);
+  Delete);
 
 export { router as ProductRouter };

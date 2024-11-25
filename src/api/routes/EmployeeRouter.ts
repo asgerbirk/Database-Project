@@ -1,10 +1,7 @@
-import express, { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
-import { EmployeeInput } from "../../types/input-types/EmployeeInput.js";
+import express from "express";
+import { Add, Delete, getAll, getById, Update } from "../controllers/EmployeeController.js";
 
 const router = express.Router();
-const prisma = new PrismaClient();
-
 /**
  * @swagger
  * /employees:
@@ -18,22 +15,8 @@ const prisma = new PrismaClient();
  *       500:
  *         description: Internal server error occurred.
  */
-router.get("/employees", async (req: Request, res: Response) => {
-  try {
-    const employees = await prisma.employees.findMany({
-      include: {
-        jobtitles: true,
-        person: true,
-        departments_employees_DepartmentIDTodepartments: true,
-        departments_departments_ManagerIDToemployees: true,
-      },
-    });
-    res.send(employees);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Failed to get employees" });
-  }
-});
+router.get("/employees", getAll)
+
 
 /**
  * @swagger
@@ -57,33 +40,8 @@ router.get("/employees", async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error occurred.
  */
-router.get(
-  "/employees/:id",
-  async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { id } = req.params;
+router.get("/employees/:id", getById)
 
-      const employee = await prisma.employees.findUnique({
-        where: { EmployeeID: parseInt(id) },
-        include: {
-          jobtitles: true,
-          person: true,
-          departments_employees_DepartmentIDTodepartments: true,
-          departments_departments_ManagerIDToemployees: true,
-        },
-      });
-
-      if (!employee) {
-        res.status(404).send({ error: "Employee not found" });
-      }
-
-      res.send(employee);
-    } catch (error) {
-      console.error(error);
-      res.status(500).send({ error: "Failed to get employee" });
-    }
-  }
-);
 
 /**
  * @swagger
@@ -151,55 +109,7 @@ router.get(
  *       500:
  *         description: Internal server error.
  */
-router.post(
-  "/employees",
-  async (req: Request<{}, {}, EmployeeInput>, res: Response) => {
-    const {
-      FirstName,
-      LastName,
-      Email,
-      Phone,
-      Address,
-      DateOfBirth,
-      HireDate,
-      JobTitleID,
-      DepartmentID,
-      Salary,
-      EmploymentStatus,
-    } = req.body;
-
-    try {
-      // Check if the person already exists based on Email
-      let person = await prisma.person.findUnique({
-        where: { Email },
-      });
-
-      // If person doesn't exist, create a new one
-      if (!person) {
-        person = await prisma.person.create({
-          data: { FirstName, LastName, Email, Phone, Address, DateOfBirth },
-        });
-      }
-
-      // Create the employee with the PersonId from the person record
-      const newEmployee = await prisma.employees.create({
-        data: {
-          PersonId: person.Id,
-          HireDate,
-          JobTitleID,
-          DepartmentID,
-          Salary,
-          EmploymentStatus,
-        },
-      });
-
-      res.status(201).send(newEmployee);
-    } catch (error) {
-      console.error(error);
-      res.status(500).send({ error: "Failed to create employee" });
-    }
-  }
-);
+router.post("/employees", Add)
 
 /**
  * @swagger
@@ -255,21 +165,8 @@ router.post(
  *       500:
  *         description: Internal server error occurred.
  */
-router.put("/employees/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { HireDate, JobTitleID, DepartmentID, Salary, EmploymentStatus } =
-    req.body;
-  try {
-    const updatedEmployee = await prisma.employees.update({
-      where: { EmployeeID: parseInt(id) },
-      data: { HireDate, JobTitleID, DepartmentID, Salary, EmploymentStatus },
-    });
-    res.send(updatedEmployee);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Failed to update employee" });
-  }
-});
+router.put("/employees/:id", Update)
+
 
 /**
  * @swagger
@@ -293,17 +190,6 @@ router.put("/employees/:id", async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error occurred.
  */
-router.delete("/employees/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  try {
-    await prisma.employees.delete({
-      where: { EmployeeID: parseInt(id) },
-    });
-    res.status(204).send();
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Failed to delete employee" });
-  }
-});
+router.delete("/employees/:id", Delete)
 
 export { router as EmployeeRouter };
