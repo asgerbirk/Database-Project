@@ -24,7 +24,7 @@ export type UserRole = 'member' | 'employee' | 'manager';
 
 // 2. Center Collection (Combining Centers and Departments)
 export interface Center {
-  _id: ObjectId; // MongoDB ObjectId
+  _id: ObjectId; 
   centerName: string;
   location: string;
   phone: string;
@@ -32,7 +32,7 @@ export interface Center {
   openingHours: string;
   managerName: string;
   facilities: string;
-  departments: Department[]; // Embedded departments
+  departments: Department[]; 
 }
 
 export interface Department {
@@ -52,7 +52,7 @@ export interface Membership {
 
 // 4. Class Collection (Combining Classes and Bookings)
 export interface Class {
-  _id: ObjectId; // MongoDB ObjectId
+  _id: ObjectId;
   className: string;
   description: string;
   classType: string;
@@ -72,7 +72,7 @@ export interface Booking {
 
 // 5. Product Collection (Combining Products and Categories)
 export interface Product {
-  _id: ObjectId; // MongoDB ObjectId
+  _id: ObjectId;
   productName: string;
   description: string;
   price: number;
@@ -88,7 +88,7 @@ export interface ProductCategory {
 
 // 6. Payment Collection
 export interface Payment {
-  _id: ObjectId; // MongoDB ObjectId
+  _id: ObjectId; 
   userId: ObjectId; // Reference to User _id
   paymentDate: Date;
   amount: number;
@@ -99,7 +99,7 @@ export interface Payment {
 
 // 7. Equipment Collection
 export interface Equipment {
-  _id: ObjectId; // MongoDB ObjectId
+  _id: ObjectId; 
   machineName: string;
   type: string;
   location: string;
