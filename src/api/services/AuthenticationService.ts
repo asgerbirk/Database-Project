@@ -1,8 +1,16 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 const prisma = new PrismaClient();
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
+  },
+});
 
 const SALT_ROUNDS = 10;
 
@@ -13,16 +21,20 @@ const REFRESH_TOKEN = process.env.REFRESH_TOKEN_SECRET;
 const JWT_EXPIRATION = process.env.JWT_EXPIRATION;
 const REFRESH_TOKEN_EXPIRATION = process.env.REFRESH_TOKEN_EXPIRATION;
 
-export async function register(data: {
-  email: string;
-  password: string;
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  address?: string;
-  dateOfBirth?: Date;
-  role?: "ADMIN" | "MEMBER";
-}) {
+export async function register(
+  data: {
+    email: string;
+    password: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    address?: string;
+    dateOfBirth?: Date;
+    role?: "ADMIN" | "MEMBER";
+    ImageUrl?: String;
+  },
+  file?: Express.Multer.File // Separate the image file
+) {
   const existingUser = await prisma.person.findUnique({
     where: { Email: data.email },
   });
@@ -32,6 +44,20 @@ export async function register(data: {
   }
 
   const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
+
+  let imageUrl: string | null = null;
+  if (file) {
+    const originalName = `${Date.now()}-${file.originalname}`;
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME || "",
+      Key: originalName,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    };
+
+    await s3Client.send(new PutObjectCommand(params));
+    imageUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${originalName}`;
+  }
 
   const newUser = await prisma.person.create({
     data: {
@@ -43,19 +69,11 @@ export async function register(data: {
       Address: data.address || null,
       DateOfBirth: data.dateOfBirth || null,
       role: "MEMBER",
+      ImageUrl: imageUrl,
     },
   });
 
-  return {
-    id: newUser.Id,
-    email: newUser.Email,
-    firstName: newUser.FirstName,
-    lastName: newUser.LastName,
-    phone: newUser.Phone,
-    address: newUser.Address,
-    dateOfBirth: newUser.DateOfBirth,
-    role: "MEMBER",
-  };
+  return newUser;
 }
 
 export async function login(data: { email: string; password: string }) {

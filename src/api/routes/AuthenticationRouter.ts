@@ -4,9 +4,12 @@ import {
   login,
   refreshToken,
 } from "../controllers/AuthenticationController.js";
+import multer from "multer";
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 const router = Router();
-router.post("/register", register);
+router.post("/register", upload.single("image"), register);
 
 router.post("/login", login);
 

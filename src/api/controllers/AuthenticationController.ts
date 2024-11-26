@@ -4,8 +4,10 @@ import cookie from "cookie";
 
 export async function register(req: Request, res: Response) {
   try {
-    const user = await AuthenticationService.register(req.body);
-    res.status(201).send(user);
+    const personData = req.body;
+    const file = req.file;
+    const newUser = await AuthenticationService.register(personData, file);
+    res.status(201).send(newUser);
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
