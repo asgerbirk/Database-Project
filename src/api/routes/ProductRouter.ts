@@ -1,5 +1,5 @@
-import express, { Request, Response } from "express";
-import { Add, Delete, getAll, getById, Update } from "../controllers/ProductController.js";
+import express from "express";
+import { add, getAll, getById, remove, update } from "../controllers/ProductController.js";
 
 const router = express.Router();
 
@@ -77,7 +77,7 @@ router.get(
  *       500:
  *         description: Internal server error.
  */
-router.post("/products", Add);
+router.post("/products", add);
 
 /**
  * @swagger
@@ -121,7 +121,7 @@ router.post("/products", Add);
  */
 router.put(
   "/products/:id",
-  Update);
+  update);
 
 /**
  * @swagger
@@ -147,6 +147,6 @@ router.put(
  */
 router.delete(
   "/products/:id",
-  Delete);
+  remove);
 
 export { router as ProductRouter };

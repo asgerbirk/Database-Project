@@ -1,4 +1,4 @@
-import { MongoClient } from "mongodb";
+import { MongoClient, Db } from "mongodb";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -9,19 +9,41 @@ if (!uri) {
   throw new Error("MONGODB_URI is not defined in the .env file");
 }
 
-const client = new MongoClient(uri);
+export class MongoDBConnection {
+  private static instance: MongoClient;
+  private static db: Db;
 
-async function mongodbConnect() {
-  try {
-    await client.connect();
-    console.log('Connected to MongoDB');
-    const mongo = client.db('zando-fitness');
-    console.log('Database Name:', mongo.databaseName);
-    return client.db();
-  } catch (error) {
-    console.error("Failed to connect to MongoDB", error);
-    throw error;
+  private constructor() {}
+
+  public static async connect(): Promise<Db> {
+    if (!this.instance) {
+      try {
+        this.instance = new MongoClient(uri);
+        await this.instance.connect();
+        console.log('Connected to MongoDB');
+        
+        this.db = this.instance.db('zando-fitness');
+        console.log('Database Name:', this.db.databaseName);
+        
+        return this.db;
+      } catch (error) {
+        console.error("Failed to connect to MongoDB", error);
+        throw error;
+      }
+    }
+    return this.db;
+  }
+
+  public static async getCollection(collectionName: string) {
+    const db = await this.connect();
+    return db.collection(collectionName);
+  }
+
+  public static async disconnect() {
+    if (this.instance) {
+      await this.instance.close();
+      this.instance = null;
+      this.db = null;
+    }
   }
 }
-
-export { mongodbConnect, client };
