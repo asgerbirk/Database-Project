@@ -7,6 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  MEMBER
+  MANAGER
+  BASIC
+}
+
 model bookings {
   BookingID   Int       @id @default(autoincrement())
   MemberID    Int?
@@ -173,5 +180,6 @@ model person {
   DateOfBirth DateTime?   @db.Date
   employees   employees[]
   members     members[]
+  role Role?
 }
 
