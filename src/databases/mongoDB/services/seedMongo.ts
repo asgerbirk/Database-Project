@@ -1,10 +1,9 @@
-import { mongodbConnect } from '../mongoConnection.js';
 import { ObjectId } from 'mongodb';
 import { User, Center, Membership, Class, Product } from '../definitions/definitions.js';
+import { MongoDBConnection } from '../mongoConnection.js';
 
 async function seedUsers() {
-  const db = await mongodbConnect();
-  const usersCollection = db.collection<User>('users');
+  const usersCollection = await MongoDBConnection.getCollection("users");
   const dummyUsers: User[] = [
     {
       _id: new ObjectId(),
@@ -40,8 +39,7 @@ async function seedUsers() {
 }
 
 async function seedCenters() {
-  const db = await mongodbConnect();
-  const centersCollection = db.collection<Center>('centers');
+  const centersCollection = await MongoDBConnection.getCollection("centers");
   const dummyCenters: Center[] = [
     {
         _id: new ObjectId(),
@@ -67,8 +65,7 @@ async function seedCenters() {
 }
 
 async function seedMemberships() {
-  const db = await mongodbConnect();
-  const membershipsCollection = db.collection<Membership>('memberships');
+  const membershipsCollection = await MongoDBConnection.getCollection("memberships");
   const dummyMemberships: Membership[] = [
     {
         _id: new ObjectId(),
@@ -94,8 +91,7 @@ async function seedMemberships() {
 }
 
 async function seedClasses() {
-  const db = await mongodbConnect();
-  const classesCollection = db.collection<Class>('classes');
+  const classesCollection = await MongoDBConnection.getCollection("classes");
   const dummyClasses: Class[] = [
     {
         _id: new ObjectId(),
@@ -116,8 +112,7 @@ async function seedClasses() {
 }
 
 async function seedProducts() {
-  const db = await mongodbConnect();
-  const productsCollection = db.collection<Product>('products');
+  const productsCollection = await MongoDBConnection.getCollection("products");
   const dummyProducts: Product[] = [
     {
         _id: new ObjectId(),
