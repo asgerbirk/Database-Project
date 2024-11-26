@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
-import { error } from "console";
 
 const prisma = new PrismaClient();
 
@@ -22,6 +21,7 @@ export async function register(data: {
   phone?: string;
   address?: string;
   dateOfBirth?: Date;
+  role?: "ADMIN" | "MEMBER";
 }) {
   const existingUser = await prisma.person.findUnique({
     where: { Email: data.email },
@@ -42,6 +42,7 @@ export async function register(data: {
       Phone: data.phone || null,
       Address: data.address || null,
       DateOfBirth: data.dateOfBirth || null,
+      role: "MEMBER",
     },
   });
 
@@ -53,6 +54,7 @@ export async function register(data: {
     phone: newUser.Phone,
     address: newUser.Address,
     dateOfBirth: newUser.DateOfBirth,
+    role: "MEMBER",
   };
 }
 
@@ -75,16 +77,25 @@ export async function login(data: { email: string; password: string }) {
   }
 
   const accessToken = jwt.sign(
-    { userId: findUserByEmail.Id, email: findUserByEmail.Email },
+    {
+      userId: findUserByEmail.Id,
+      email: findUserByEmail.Email,
+      role: findUserByEmail.role,
+    },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRATION }
   );
 
   const refreshToken = jwt.sign(
-    { userId: findUserByEmail.Id, email: findUserByEmail.Email },
+    {
+      userId: findUserByEmail.Id,
+      email: findUserByEmail.Email,
+      role: findUserByEmail.role,
+    },
     REFRESH_TOKEN,
     { expiresIn: REFRESH_TOKEN_EXPIRATION }
   );
+
   return { accessToken, refreshToken };
 }
 

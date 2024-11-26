@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 
 const JWT_SECRET = process.env.JWT_TOKEN;
-console.log(JWT_SECRET);
 
 export function authenticateToken(
   req: Request,
@@ -24,4 +23,22 @@ export function authenticateToken(
   } catch (error) {
     res.status(403).json({ error: "Invalid token" });
   }
+}
+
+export function authorizeRoles(allowedRoles: Array<"ADMIN" | "MEMBER">) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const user = (req as any).user;
+
+    if (!user) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    if (!allowedRoles.includes(user.role)) {
+      return res
+        .status(403)
+        .json({ error: "You do not have permission to perform this action" });
+    }
+
+    next();
+  };
 }
