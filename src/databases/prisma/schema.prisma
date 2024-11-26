@@ -181,5 +181,6 @@ model person {
   employees   employees[]
   members     members[]
   role Role?
+  ImageUrl    String? 
 }
 
