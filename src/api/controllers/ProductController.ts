@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
-import * as ProductService from "../services/ProductService.js";
+import ProductService from "../services/ProductService.js";
+
+const productService = new ProductService("mongo");
 
 export async function getAll(req: Request, res: Response) {
   try {
-    const products = await ProductService.getAll();
-    res.status(201).send(products);
+    const products = await productService.getAll(); // Added await
+    res.status(200).send(products); // Changed to 200 for successful retrieval
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
@@ -12,34 +14,34 @@ export async function getAll(req: Request, res: Response) {
 
 export async function getById(req: Request, res: Response) {
   try {
-    const product = await ProductService.getById(req.params);
+    const product = await productService.getById(req.params); // Added await
+    res.status(200).send({ product }); // Changed to 200
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
+}
+
+export async function add(req: Request, res: Response) { // Changed to camelCase
+  try {
+    const product = await productService.add(req.body); // Changed method name
     res.status(201).send({ product });
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
 }
 
-export async function Add(req: Request, res: Response) {
+export async function update(req: Request, res: Response) { // Changed to camelCase
   try {
-    const product = await ProductService.Add(req.body);
-    res.status(201).send({ product });
+    const product = await productService.update(req.body, req.params); // Changed method name
+    res.status(200).send({ product }); // Changed to 200
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
 }
 
-export async function Update(req: Request, res: Response) {
-    try {
-      const product = await ProductService.Update(req.params, req.body);
-      res.status(201).send({ product });
-    } catch (error) {
-      res.status(400).send({ error: error.message });
-    }
-  }
-
-export async function Delete(req: Request, res: Response) {
+export async function remove(req: Request, res: Response) { // Renamed to remove, changed to camelCase
   try {
-    await ProductService.Delete(req.params);
+    await productService.delete(req.params); // Changed method name
     res.status(200).send();
   } catch (error) {
     res.status(400).send({ error: error.message });
