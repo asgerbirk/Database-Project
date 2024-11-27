@@ -158,4 +158,4 @@ router.post("/login", login);
  */
 router.post("/refreshToken", refreshToken);
 
-export default router;
+export { router as AuthenticationRouter };

@@ -8,13 +8,14 @@ import { EmployeeRouter } from "./src/api/routes/EmployeeRouter.js";
 import { MembershipRouter } from "./src/api/routes/MembershipRouter.js";
 import { ProductRouter } from "./src/api/routes/ProductRouter.js";
 import cors from "cors";
+import { AuthenticationRouter } from "./src/api/routes/AuthenticationRouter.js";
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-app.use(EmployeeRouter, MembershipRouter, ProductRouter);
+app.use(EmployeeRouter, MembershipRouter, ProductRouter, AuthenticationRouter);
 //connectToDatabase();
 //mongodbConnect();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

@@ -21,6 +21,10 @@ const REFRESH_TOKEN = process.env.REFRESH_TOKEN_SECRET;
 const JWT_EXPIRATION = process.env.JWT_EXPIRATION;
 const REFRESH_TOKEN_EXPIRATION = process.env.REFRESH_TOKEN_EXPIRATION;
 
+function formatDateofBirth(date: Date): string {
+  return "meerwaldt";
+}
+
 export async function register(
   data: {
     email: string;
@@ -29,7 +33,7 @@ export async function register(
     lastName?: string;
     phone?: string;
     address?: string;
-    dateOfBirth?: Date;
+    dateOfBirth?: string;
     role?: "ADMIN" | "MEMBER";
     ImageUrl?: String;
   },
@@ -67,7 +71,7 @@ export async function register(
       LastName: data.lastName || null,
       Phone: data.phone || null,
       Address: data.address || null,
-      DateOfBirth: data.dateOfBirth || null,
+      DateOfBirth: dateOfBirth || null,
       role: "MEMBER",
       ImageUrl: imageUrl,
     },
