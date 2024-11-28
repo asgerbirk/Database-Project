@@ -71,7 +71,7 @@ export async function register(
       LastName: data.lastName || null,
       Phone: data.phone || null,
       Address: data.address || null,
-      DateOfBirth: dateOfBirth || null,
+      //DateOfBirth: string || null,
       role: "MEMBER",
       ImageUrl: imageUrl,
     },

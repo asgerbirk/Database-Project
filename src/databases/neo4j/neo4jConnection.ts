@@ -1,4 +1,6 @@
-import neo4j, { Driver, Session } from "neo4j-driver";
+import neo4j, { Driver } from "neo4j-driver";
+
+let driver: Driver | null = null;
 
 export async function connectToDatabase() {
   const neo4jUri: string = process.env.NEO4J_URI as string;
@@ -8,7 +10,6 @@ export async function connectToDatabase() {
   if (!neo4jUri || !username || !password) {
     throw new Error("Missing Neo4j configuration in environment variables");
   }
-  let driver;
 
   try {
     driver = neo4j.driver(neo4jUri, neo4j.auth.basic(username, password));
@@ -16,11 +17,18 @@ export async function connectToDatabase() {
     console.log("Connection established");
     console.log(serverInfo);
   } catch (err) {
-    console.log(`Connection error\n${err}\nCause: ${err.cause}`);
-    await driver.close();
-    return;
+    console.error("Connection error:", err);
+    if (driver) await driver.close();
+    throw err;
   }
-  await driver.close;
+}
+
+// Export the driver for use in other files
+export function getDriver(): Driver {
+  if (!driver) {
+    throw new Error("Driver not initialized. Call connectToDatabase() first.");
+  }
+  return driver;
 }
 
 /*
