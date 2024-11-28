@@ -83,6 +83,8 @@ const router = Router();
  *                   type: string
  *                 imageUrl:
  *                   type: string
+ *                 emergencyData:
+ *                   type: string
  *       400:
  *         description: Bad Request
  */

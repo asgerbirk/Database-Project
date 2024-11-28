@@ -34,8 +34,10 @@ export async function register(
     phone?: string;
     address?: string;
     dateOfBirth?: string;
+    memberShip: string; // Renamed to memberShip for clarity in your API model
+    emergencyContact?: string; // New optional field for member-specific data
     role?: "ADMIN" | "MEMBER";
-    ImageUrl?: String;
+    ImageUrl?: string;
   },
   file?: Express.Multer.File // Separate the image file
 ) {
@@ -63,21 +65,38 @@ export async function register(
     imageUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${originalName}`;
   }
 
-  const newUser = await prisma.person.create({
-    data: {
-      Email: data.email,
-      Password: hashedPassword,
-      FirstName: data.firstName || null,
-      LastName: data.lastName || null,
-      Phone: data.phone || null,
-      Address: data.address || null,
-      //DateOfBirth: string || null,
-      role: "MEMBER",
-      ImageUrl: imageUrl,
-    },
+
+  // Start a transaction to ensure atomicity
+  const result = await prisma.$transaction(async (tx) => {
+    // Create a new person
+    const newUser = await tx.person.create({
+      data: {
+        Email: data.email,
+        Password: hashedPassword,
+        FirstName: data.firstName || null,
+        LastName: data.lastName || null,
+        Phone: data.phone || null,
+        Address: data.address || null,
+        DateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
+        role: "MEMBER", // Default role for a new registration
+        ImageUrl: imageUrl,
+      },
+    });
+
+    // Create a new member
+    const newMember = await tx.members.create({
+      data: {
+        PersonId: newUser.Id,
+        JoinDate: new Date(),
+        MembershipID: parseInt(data.memberShip, 10),
+        EmergencyContact: data.emergencyContact || null,
+      },
+    });
+
+    return { newUser, newMember };
   });
 
-  return newUser;
+  return result;
 }
 
 export async function login(data: { email: string; password: string }) {

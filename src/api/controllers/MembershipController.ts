@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import MembershipService from "../services/MembershipService.js";
 
-const membershipService = new MembershipService("mongo")
+const membershipService = new MembershipService("sql")
 
 export async function getAll(req: Request, res: Response) {
   try {
