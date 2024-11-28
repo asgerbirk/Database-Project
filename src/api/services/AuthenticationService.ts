@@ -65,6 +65,7 @@ export async function register(
     imageUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${originalName}`;
   }
 
+
   // Start a transaction to ensure atomicity
   const result = await prisma.$transaction(async (tx) => {
     // Create a new person
