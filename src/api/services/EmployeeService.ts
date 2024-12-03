@@ -89,6 +89,9 @@ class PrismaEmployeeRepository implements EmployeeRepository {
       const newEmployee = await this.prisma.employees.create({
         data: {
           PersonId: person.Id,
+=======
+          PersonID: person.PersonID,
+>>>>>>> neo4j
           HireDate,
           JobTitleID,
           DepartmentID,

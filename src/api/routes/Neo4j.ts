@@ -14,7 +14,7 @@ router.get("/neo4j", async (req: Request, res: Response) => {
 
   try {
     console.log("Executing Neo4j query...");
-    const query = "MATCH (p:PERSON) RETURN p.firstName as firstName";
+    const query = "MATCH (e:Employee) RETURN e.FirstName AS FirstName;";
     const result = await session.run(query);
 
     // Transform results to an array of plain objects

@@ -9,7 +9,8 @@
     "dev": "nodemon src/index.ts",
     "test": "vitest",
     "migrate": "npx prisma migrate dev --name",
-    "pull": "npx prisma db pull"
+    "pull": "npx prisma db pull",
+    "reset": "npx prisma migrate reset --force && npm run cleanup-indexes"
   },
   "prisma": {
     "schema": "./src/databases/prisma/schema.prisma"

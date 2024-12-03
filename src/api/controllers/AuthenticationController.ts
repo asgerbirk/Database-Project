@@ -49,6 +49,15 @@ export async function login(req: Request, res: Response) {
   }
 }
 
+export async function getAllPersons(req: Request, res: Response) {
+  try {
+    const getAllPersons = await AuthenticationService.getAllPersons();
+    res.status(201).send(getAllPersons);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
+}
+
 export async function refreshToken(req: Request, res: Response) {
   try {
     const cookies = cookie.parse(req.headers.cookie || ""); // Parse cookies from header string

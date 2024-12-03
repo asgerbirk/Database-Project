@@ -34,10 +34,11 @@ export async function register(
     phone?: string;
     address?: string;
     dateOfBirth?: string;
-    memberShip: string; // Renamed to memberShip for clarity in your API model
-    emergencyContact?: string; // New optional field for member-specific data
     role?: "ADMIN" | "MEMBER";
     ImageUrl?: string;
+    joinDate?: string;
+    emergencyContact?: string;
+    memberShip: string;
   },
   file?: Express.Multer.File // Separate the image file
 ) {
@@ -65,38 +66,41 @@ export async function register(
     imageUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${originalName}`;
   }
 
-
-  // Start a transaction to ensure atomicity
-  const result = await prisma.$transaction(async (tx) => {
-    // Create a new person
-    const newUser = await tx.person.create({
-      data: {
-        Email: data.email,
-        Password: hashedPassword,
-        FirstName: data.firstName || null,
-        LastName: data.lastName || null,
-        Phone: data.phone || null,
-        Address: data.address || null,
-        DateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
-        role: "MEMBER", // Default role for a new registration
-        ImageUrl: imageUrl,
+  const newUser = await prisma.person.create({
+    data: {
+      Email: data.email,
+      Password: hashedPassword,
+      FirstName: data.firstName || null,
+      LastName: data.lastName || null,
+      Phone: data.phone || null,
+      Address: data.address || null,
+      DateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
+      Role: "MEMBER",
+      ImageUrl: imageUrl,
+      member: {
+        create: {
+          MembershipID: parseInt(data.memberShip, 10),
+          JoinDate: new Date(),
+          EmergencyContact: data.emergencyContact || null,
+        },
       },
-    });
-
-    // Create a new member
-    const newMember = await tx.members.create({
-      data: {
-        PersonId: newUser.Id,
-        JoinDate: new Date(),
-        MembershipID: parseInt(data.memberShip, 10),
-        EmergencyContact: data.emergencyContact || null,
-      },
-    });
-
-    return { newUser, newMember };
+    },
+    include: {
+      member: true,
+    },
   });
 
-  return result;
+  return newUser;
+}
+
+export async function getAllPersons() {
+  const getAllPersons = await prisma.person.findMany({
+    include: {
+      member: true,
+      employee: true,
+    },
+  });
+  return getAllPersons;
 }
 
 export async function login(data: { email: string; password: string }) {
@@ -119,9 +123,9 @@ export async function login(data: { email: string; password: string }) {
 
   const accessToken = jwt.sign(
     {
-      userId: findUserByEmail.Id,
+      userId: findUserByEmail.PersonID,
       email: findUserByEmail.Email,
-      role: findUserByEmail.role,
+      role: findUserByEmail.Role,
     },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRATION }
@@ -129,9 +133,9 @@ export async function login(data: { email: string; password: string }) {
 
   const refreshToken = jwt.sign(
     {
-      userId: findUserByEmail.Id,
+      userId: findUserByEmail.PersonID,
       email: findUserByEmail.Email,
-      role: findUserByEmail.role,
+      role: findUserByEmail.Role,
     },
     REFRESH_TOKEN,
     { expiresIn: REFRESH_TOKEN_EXPIRATION }
