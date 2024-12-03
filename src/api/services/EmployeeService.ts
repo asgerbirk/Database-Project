@@ -26,8 +26,8 @@ class PrismaEmployeeRepository implements EmployeeRepository {
         include: {
           jobtitles: true,
           person: true,
-          departments_employees_DepartmentIDTodepartments: true,
-          departments_departments_ManagerIDToemployees: true,
+          //departments_employees_DepartmentIDTodepartments: true,
+          //departments_departments_ManagerIDToemployees: true,
         },
       });
       return employees;
@@ -43,8 +43,9 @@ class PrismaEmployeeRepository implements EmployeeRepository {
         include: {
           jobtitles: true,
           person: true,
-          departments_employees_DepartmentIDTodepartments: true,
-          departments_departments_ManagerIDToemployees: true,
+
+          //departments_employees_DepartmentIDTodepartments: true,
+          //departments_departments_ManagerIDToemployees: true,
         },
       });
 
@@ -88,10 +89,7 @@ class PrismaEmployeeRepository implements EmployeeRepository {
       // Create the employee with the PersonId from the person record
       const newEmployee = await this.prisma.employees.create({
         data: {
-          PersonId: person.Id,
-=======
           PersonID: person.PersonID,
->>>>>>> neo4j
           HireDate,
           JobTitleID,
           DepartmentID,
