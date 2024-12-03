@@ -36,6 +36,9 @@ export async function register(
     dateOfBirth?: string;
     role?: "ADMIN" | "MEMBER";
     ImageUrl?: String;
+    joinDate?: string;
+    emergencyContact?: string;
+    memberShip: string;
   },
   file?: Express.Multer.File // Separate the image file
 ) {
@@ -71,13 +74,33 @@ export async function register(
       LastName: data.lastName || null,
       Phone: data.phone || null,
       Address: data.address || null,
-      //DateOfBirth: string || null,
-      role: "MEMBER",
+      DateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
+      Role: "MEMBER",
       ImageUrl: imageUrl,
+      member: {
+        create: {
+          MembershipID: parseInt(data.memberShip, 10),
+          JoinDate: new Date(),
+          EmergencyContact: data.emergencyContact || null,
+        },
+      },
+    },
+    include: {
+      member: true,
     },
   });
 
   return newUser;
+}
+
+export async function getAllPersons() {
+  const getAllPersons = await prisma.person.findMany({
+    include: {
+      member: true,
+      employee: true,
+    },
+  });
+  return getAllPersons;
 }
 
 export async function login(data: { email: string; password: string }) {
@@ -100,9 +123,9 @@ export async function login(data: { email: string; password: string }) {
 
   const accessToken = jwt.sign(
     {
-      userId: findUserByEmail.Id,
+      userId: findUserByEmail.PersonID,
       email: findUserByEmail.Email,
-      role: findUserByEmail.role,
+      role: findUserByEmail.Role,
     },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRATION }
@@ -110,9 +133,9 @@ export async function login(data: { email: string; password: string }) {
 
   const refreshToken = jwt.sign(
     {
-      userId: findUserByEmail.Id,
+      userId: findUserByEmail.PersonID,
       email: findUserByEmail.Email,
-      role: findUserByEmail.role,
+      role: findUserByEmail.Role,
     },
     REFRESH_TOKEN,
     { expiresIn: REFRESH_TOKEN_EXPIRATION }

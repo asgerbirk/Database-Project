@@ -3,6 +3,7 @@ import {
   register,
   login,
   refreshToken,
+  getAllPersons,
 } from "../controllers/AuthenticationController.js";
 import multer from "multer";
 
@@ -157,5 +158,7 @@ router.post("/login", login);
  *         description: Bad Request
  */
 router.post("/refreshToken", refreshToken);
+
+router.get("/persons", getAllPersons);
 
 export { router as AuthenticationRouter };

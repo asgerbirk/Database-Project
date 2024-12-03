@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `person` ADD COLUMN `role` ENUM('ADMIN', 'MEMBER', 'MANAGER', 'BASIC') NULL;
