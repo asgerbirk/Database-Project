@@ -16,12 +16,13 @@ enum Role {
 }
 
 model bookings {
-  BookingID      Int               @id @default(autoincrement())
-  ClassID        Int? // Foreign key referencing classes
-  BookingDate    DateTime?         @db.Date
-  Status         String?           @db.VarChar(50)
-  class          classes?          @relation(fields: [ClassID], references: [ClassID], onDelete: Cascade, onUpdate: Cascade) // Booking belongs to one class
-  memberBookings member_bookings[] // Many-to-Many: Members participating in this booking'
+
+  BookingID       Int           @id @default(autoincrement())
+  ClassID         Int?          // Foreign key referencing classes
+  BookingDate     DateTime?     @db.Date
+  Status          String?       @db.VarChar(50)
+  class           classes?      @relation(fields: [ClassID], references: [ClassID], onDelete: Cascade, onUpdate: Cascade) // Booking belongs to one class
+  memberBookings  member_bookings[] // Many-to-Many: Members participating in this booking'
 
   @@index([ClassID], map: "ClassID")
 }
@@ -38,6 +39,8 @@ model centers {
   equipment      equipment[] // One-to-Many: A center can have multiple equipment
   classes        classes[] // One-to-Many: A center can have multiple classes
   centerProducts center_products[] // Many-to-Many: Products available at this center
+  employees      employees[]   // One-to-Many: A center can have multiple employees
+
 }
 
 // many to many
@@ -106,17 +109,19 @@ model jobtitles {
 }
 
 model employees {
-  EmployeeID       Int       @id @default(autoincrement())
-  PersonID         Int?      @unique // Ensures one-to-one relation with person
-  HireDate         DateTime? @db.Date
-  JobTitleID       Int?
-  DepartmentID     Int?
-  Salary           Decimal?  @db.Decimal(10, 2)
-  EmploymentStatus String?   @db.VarChar(50)
-  classes          classes[] // One-to-many: an employee can have multiple classes
+  EmployeeID          Int           @id @default(autoincrement())
+  PersonID            Int?          @unique // Ensures one-to-one relation with person
+  HireDate            DateTime?     @db.Date
+  CenterID            Int?
+  JobTitleID          Int?
+  DepartmentID        Int?
+  Salary              Decimal?      @db.Decimal(10, 2)
+  EmploymentStatus    String?       @db.VarChar(50)
+  classes             classes[]     // One-to-many: an employee can have multiple classes
 
-  person    person?    @relation("PersonToEmployee", fields: [PersonID], references: [PersonID], onDelete: Cascade)
-  jobtitles jobtitles? @relation(fields: [JobTitleID], references: [JobTitleID], onDelete: NoAction, onUpdate: NoAction)
+  person              person?       @relation("PersonToEmployee", fields: [PersonID], references: [PersonID], onDelete: Cascade)
+  jobtitles           jobtitles?    @relation(fields: [JobTitleID], references: [JobTitleID], onDelete: NoAction, onUpdate: NoAction)
+  center              centers?      @relation(fields: [CenterID], references: [CenterID], onDelete: SetNull) // Employee belongs to one center
 
   @@index([DepartmentID], map: "DepartmentID")
   @@index([JobTitleID], map: "JobTitleID")
@@ -140,15 +145,15 @@ model person {
 }
 
 model members {
-  MemberID     Int  @id @default(autoincrement())
-  PersonID     Int? @unique // Ensures one-to-one relation with person
-  MembershipID Int? @unique // Ensures one-to-one relation with memberships
+  MemberID          Int              @id @default(autoincrement())
+  PersonID          Int?          @unique //  one-to-one relation with person
+  MembershipID      Int?             @unique //  one-to-one relation with memberships
 
-  JoinDate         DateTime?         @db.Date
-  EmergencyContact String?           @db.VarChar(15)
-  membership       memberships?      @relation(fields: [MembershipID], references: [MembershipID], onDelete: SetNull, onUpdate: NoAction)
-  memberBookings   member_bookings[] // Many-to-many relation with bookings
-  payments         payments[] // One-to-Many: A member can make multiple recurring payments
+  JoinDate          DateTime?        @db.Date
+  EmergencyContact  String?          @db.VarChar(15)
+  membership        memberships?     @relation(fields: [MembershipID], references: [MembershipID], onDelete: SetNull, onUpdate: NoAction)
+  memberBookings    member_bookings[] // Many-to-many relation with bookings
+  payments          payments[]       // One-to-Many: A member can make multiple  payments
 
   person person? @relation("PersonToMember", fields: [PersonID], references: [PersonID], onDelete: Cascade)
 
