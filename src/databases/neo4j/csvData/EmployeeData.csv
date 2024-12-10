@@ -1,0 +1,3 @@
+EmployeeID,PersonID,HireDate,JobTitleID,DepartmentID,Salary,EmploymentStatus,CenterID
+1,3,2020-09-15,1,NULL,4000.00,Full-time,2
+2,2,2021-01-10,2,NULL,6000.00,Full-time,1

@@ -1,0 +1,4 @@
+MembershipID,MembershipName,PricePerMonth,AccessLevel,Duration,MaxClassBookings,Description
+1,Basic,30.00,Standard,Monthly,4,Basic membership with limited classes
+2,Premium,60.00,Full,Monthly,10,Access to all facilities and unlimited classes
+3,Family,100.00,Full,Monthly,15,Full access for up to 4 family members

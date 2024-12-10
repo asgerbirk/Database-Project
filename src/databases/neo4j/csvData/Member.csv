@@ -1,0 +1,4 @@
+MemberID,PersonID,JoinDate,MembershipID,EmergencyContact
+1,1,2023-01-10,2,911123456
+2,2,2023-06-20,1,911654321
+3,4,2024-12-03,NULL,Mikkel
