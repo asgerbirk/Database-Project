@@ -9,91 +9,79 @@ datasource db {
 
 enum Role {
   ADMIN
+
   MEMBER
   MANAGER
   BASIC
 }
 
 model bookings {
-  BookingID       Int           @id @default(autoincrement())
-  ClassID         Int?          // Foreign key referencing classes
-  BookingDate     DateTime?     @db.Date
-  Status          String?       @db.VarChar(50)
-  class           classes?      @relation(fields: [ClassID], references: [ClassID], onDelete: Cascade, onUpdate: Cascade) // Booking belongs to one class
-  memberBookings  member_bookings[] // Many-to-Many: Members participating in this booking'
-
-
-
+  BookingID      Int               @id @default(autoincrement())
+  ClassID        Int? // Foreign key referencing classes
+  BookingDate    DateTime?         @db.Date
+  Status         String?           @db.VarChar(50)
+  class          classes?          @relation(fields: [ClassID], references: [ClassID], onDelete: Cascade, onUpdate: Cascade) // Booking belongs to one class
+  memberBookings member_bookings[] // Many-to-Many: Members participating in this booking'
 
   @@index([ClassID], map: "ClassID")
 }
 
-
-
-
 model centers {
-  CenterID       Int         @id @default(autoincrement())
-  CenterName     String?     @db.VarChar(100)
-  Location       String?     @db.VarChar(255)
-  Phone          String?     @db.VarChar(15)
-  Email          String?     @db.VarChar(100)
-  OpeningHours   String?     @db.VarChar(100)
-  ManagerName    String?     @db.VarChar(100)
-  Facilities     String?     @db.VarChar(255)
+  CenterID       Int               @id @default(autoincrement())
+  CenterName     String?           @db.VarChar(100)
+  Location       String?           @db.VarChar(255)
+  Phone          String?           @db.VarChar(15)
+  Email          String?           @db.VarChar(100)
+  OpeningHours   String?           @db.VarChar(100)
+  ManagerName    String?           @db.VarChar(100)
+  Facilities     String?           @db.VarChar(255)
   equipment      equipment[] // One-to-Many: A center can have multiple equipment
-  classes        classes[]   // One-to-Many: A center can have multiple classes
+  classes        classes[] // One-to-Many: A center can have multiple classes
   centerProducts center_products[] // Many-to-Many: Products available at this center
 }
 
-
-//many to many
+// many to many
 model center_products {
-  CenterProductID Int     @id @default(autoincrement())
+  CenterProductID Int @id @default(autoincrement())
   CenterID        Int
   ProductID       Int
 
-  center          centers  @relation(fields: [CenterID], references: [CenterID], onDelete: Cascade)
-  product         products @relation(fields: [ProductID], references: [ProductID], onDelete: Cascade)
+  center  centers  @relation(fields: [CenterID], references: [CenterID], onDelete: Cascade)
+  product products @relation(fields: [ProductID], references: [ProductID], onDelete: Cascade)
 
   @@unique([CenterID, ProductID]) // Prevent duplicate entries
 }
 
-
 model classes {
-  ClassID          Int          @id @default(autoincrement())
-  ClassName        String?      @db.VarChar(100)
-  Description      String?      @db.VarChar(255)
-  ClassType        String?      @db.VarChar(50)
-  Duration         Int?
-  MaxParticipants  Int?
-  EmployeeID       Int?
-    CenterID         Int?         // Foreign key referencing centers
+  ClassID         Int     @id @default(autoincrement())
+  ClassName       String? @db.VarChar(100)
+  Description     String? @db.VarChar(255)
+  ClassType       String? @db.VarChar(50)
+  Duration        Int?
+  MaxParticipants Int?
+  EmployeeID      Int?
+  CenterID        Int? // Foreign key referencing centers
 
-  ScheduleDate     DateTime?    @db.Date
-  StartTime        DateTime?    @db.Time(0)
-  EndTime          DateTime?    @db.Time(0)
-  bookings         bookings[]   // One-to-Many: A class can have multiple bookings
-  employee         employees?   @relation(fields: [EmployeeID], references: [EmployeeID], onDelete: NoAction, onUpdate: NoAction, map: "classes_ibfk_1")
-    center           centers?     @relation(fields: [CenterID], references: [CenterID], onDelete: Cascade, onUpdate: Cascade)
-
+  ScheduleDate DateTime?  @db.Date
+  StartTime    DateTime?  @db.Time(0)
+  EndTime      DateTime?  @db.Time(0)
+  bookings     bookings[] // One-to-Many: A class can have multiple bookings
+  employee     employees? @relation(fields: [EmployeeID], references: [EmployeeID], onDelete: NoAction, onUpdate: NoAction, map: "classes_ibfk_1")
+  center       centers?   @relation(fields: [CenterID], references: [CenterID], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([EmployeeID], map: "EmployeeID")
 }
 
-
-
 //
-//model departments {
-  //DepartmentID                                  Int         @id @default(autoincrement())
-  //DepartmentName                                String?     @db.VarChar(100)
-  //ManagerID                                     Int?
-  //manager employees? @relation("departments_ManagerIDToemployees", fields: [ManagerID], references: [id], onDelete: NoAction, map: "departments_ibfk_1")
-  //employees employees[] @relation("employees_DepartmentIDTodepartments")
+// model departments {
+// DepartmentID                                  Int         @id @default(autoincrement())
+// DepartmentName                                String?     @db.VarChar(100)
+// ManagerID                                     Int?
+// manager employees? @relation("departments_ManagerIDToemployees", fields: [ManagerID], references: [id], onDelete: NoAction, map: "departments_ibfk_1")
+// employees employees[] @relation("employees_DepartmentIDTodepartments")
 
-  //@@index([ManagerID], map: "ManagerID")
+//@@index([ManagerID], map: "ManagerID")
 //}
-
-
 
 model equipment {
   MachineID       Int       @id @default(autoincrement())
@@ -104,12 +92,11 @@ model equipment {
   PurchaseDate    DateTime? @db.Date
   MaintenanceDate DateTime? @db.Date
   Status          String?   @db.VarChar(50)
-  CenterID        Int       // Foreign key to centers
+  CenterID        Int // Foreign key to centers
   center          centers   @relation(fields: [CenterID], references: [CenterID], onDelete: Cascade) // Belongs to one center
 
   @@index([CenterID], map: "CenterID")
 }
-
 
 model jobtitles {
   JobTitleID   Int         @id @default(autoincrement())
@@ -119,104 +106,91 @@ model jobtitles {
 }
 
 model employees {
-  EmployeeID          Int           @id @default(autoincrement())
-  PersonID            Int?          @unique // Ensures one-to-one relation with person
-  HireDate            DateTime?     @db.Date
-  JobTitleID          Int?
-  DepartmentID        Int?
-  Salary              Decimal?      @db.Decimal(10, 2)
-  EmploymentStatus    String?       @db.VarChar(50)
-  classes             classes[]     // One-to-many: an employee can have multiple classes
+  EmployeeID       Int       @id @default(autoincrement())
+  PersonID         Int?      @unique // Ensures one-to-one relation with person
+  HireDate         DateTime? @db.Date
+  JobTitleID       Int?
+  DepartmentID     Int?
+  Salary           Decimal?  @db.Decimal(10, 2)
+  EmploymentStatus String?   @db.VarChar(50)
+  classes          classes[] // One-to-many: an employee can have multiple classes
 
-  person              person?       @relation("PersonToEmployee", fields: [PersonID], references: [PersonID], onDelete: Cascade)
-  jobtitles           jobtitles?    @relation(fields: [JobTitleID], references: [JobTitleID], onDelete: NoAction, onUpdate: NoAction)
+  person    person?    @relation("PersonToEmployee", fields: [PersonID], references: [PersonID], onDelete: Cascade)
+  jobtitles jobtitles? @relation(fields: [JobTitleID], references: [JobTitleID], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([DepartmentID], map: "DepartmentID")
   @@index([JobTitleID], map: "JobTitleID")
 }
 
-
-
 model person {
-  PersonID    Int         @id @default(autoincrement())
-  FirstName   String?     @db.VarChar(100)
-  LastName    String?     @db.VarChar(100)
-  Email       String?     @unique(map: "Email") @db.VarChar(100)
-  Password    String?     @db.VarChar(100)
-  Phone       String?     @db.VarChar(15)
-  Address     String?     @db.VarChar(255)
-  DateOfBirth DateTime?   @db.Date
+  PersonID    Int       @id @default(autoincrement())
+  FirstName   String?   @db.VarChar(100)
+  LastName    String?   @db.VarChar(100)
+  Email       String?   @unique(map: "Email") @db.VarChar(100)
+  Password    String?   @db.VarChar(100)
+  Phone       String?   @db.VarChar(15)
+  Address     String?   @db.VarChar(255)
+  DateOfBirth DateTime? @db.Date
   Role        Role?
   ImageUrl    String?
 
   // Relations
- member      members?    @relation("PersonToMember")
-  employee    employees?  @relation("PersonToEmployee")
+  member   members?   @relation("PersonToMember")
+  employee employees? @relation("PersonToEmployee")
 }
 
-
-
-
-
 model members {
-  MemberID          Int              @id @default(autoincrement())
-  PersonID          Int?          @unique // Ensures one-to-one relation with person
-  MembershipID      Int?             @unique // Ensures one-to-one relation with memberships
+  MemberID     Int  @id @default(autoincrement())
+  PersonID     Int? @unique // Ensures one-to-one relation with person
+  MembershipID Int? @unique // Ensures one-to-one relation with memberships
 
-  JoinDate          DateTime?        @db.Date
-  EmergencyContact  String?          @db.VarChar(15)
-  membership        memberships?     @relation(fields: [MembershipID], references: [MembershipID], onDelete: SetNull, onUpdate: NoAction)
-  memberBookings    member_bookings[] // Many-to-many relation with bookings
-  payments          payments[]       // One-to-Many: A member can make multiple recurring payments
+  JoinDate         DateTime?         @db.Date
+  EmergencyContact String?           @db.VarChar(15)
+  membership       memberships?      @relation(fields: [MembershipID], references: [MembershipID], onDelete: SetNull, onUpdate: NoAction)
+  memberBookings   member_bookings[] // Many-to-many relation with bookings
+  payments         payments[] // One-to-Many: A member can make multiple recurring payments
 
-
-  person            person?       @relation("PersonToMember", fields: [PersonID], references: [PersonID], onDelete: Cascade)
+  person person? @relation("PersonToMember", fields: [PersonID], references: [PersonID], onDelete: Cascade)
 
   @@index([MembershipID], map: "MembershipID")
 }
 
-
 model member_bookings {
-  MemberBookingID Int      @id @default(autoincrement())
+  MemberBookingID Int @id @default(autoincrement())
   MemberID        Int
   BookingID       Int
 
-  member          members   @relation(fields: [MemberID], references: [MemberID], onDelete: Cascade)
-  booking         bookings  @relation(fields: [BookingID], references: [BookingID], onDelete: Cascade)
+  member  members  @relation(fields: [MemberID], references: [MemberID], onDelete: Cascade)
+  booking bookings @relation(fields: [BookingID], references: [BookingID], onDelete: Cascade)
 
   // Prevent duplicate relationships between the same MemberID and BookingID
   @@unique([MemberID, BookingID])
 }
 
-
-
 model memberships {
-  MembershipID     Int       @id @default(autoincrement())
-  MembershipName   String?   @db.VarChar(50)
-  PricePerMonth    Decimal?  @db.Decimal(10, 2)
-  AccessLevel      String?   @db.VarChar(50)
-  Duration         String?   @db.VarChar(50)
+  MembershipID     Int      @id @default(autoincrement())
+  MembershipName   String?  @db.VarChar(50)
+  PricePerMonth    Decimal? @db.Decimal(10, 2)
+  AccessLevel      String?  @db.VarChar(50)
+  Duration         String?  @db.VarChar(50)
   MaxClassBookings Int?
-  Description      String?   @db.VarChar(255)
+  Description      String?  @db.VarChar(255)
 
-  members          members?  @relation // One-to-One relation with members
+  members members? @relation // One-to-One relation with members
 }
 
 model payments {
-  PaymentID     Int        @id @default(autoincrement())
-  //BookingID     Int        @unique// Foreign key referencing bookings
-    MemberID      Int?       // Foreign key referencing members, each payment belongs to one member
+  PaymentID Int  @id @default(autoincrement())
+  // BookingID     Int        @unique// Foreign key referencing bookings
+  MemberID  Int? // Foreign key referencing members, each payment belongs to one member
 
-  PaymentDate   DateTime?  @db.Date
-  Amount        Decimal?   @db.Decimal(10, 2)
-  PaymentMethod String?    @db.VarChar(50) 
-  PaymentType   String?    @db.VarChar(50) 
-  Status        String?    @db.VarChar(50) 
-  member        members?    @relation(fields: [MemberID], references: [MemberID], onDelete: Cascade)
-
-  
+  PaymentDate   DateTime? @db.Date
+  Amount        Decimal?  @db.Decimal(10, 2)
+  PaymentMethod String?   @db.VarChar(50)
+  PaymentType   String?   @db.VarChar(50)
+  Status        String?   @db.VarChar(50)
+  member        members?  @relation(fields: [MemberID], references: [MemberID], onDelete: Cascade)
 }
-
 
 model productcategories {
   CategoryID   Int        @id @default(autoincrement())
@@ -226,20 +200,17 @@ model productcategories {
 }
 
 model products {
-  ProductID         Int                @id @default(autoincrement())
-  ProductName       String?            @db.VarChar(100)
-  Description       String?            @db.VarChar(255)
-  Price             Decimal?           @db.Decimal(10, 2)
-  StockQuantity     Int?
-  CategoryID        Int                 // Foreign key to productcategories
-  PaymentID         Int?
-  productcategory   productcategories?  @relation(fields: [CategoryID], references: [CategoryID], onDelete: Cascade, onUpdate: Cascade) // Relation to productcategories
-  //payments          payments?          @relation(fields: [PaymentID], references: [PaymentID], onDelete: NoAction, onUpdate: NoAction, map: "products_ibfk_2")
-  centerProducts    center_products[]   // Many-to-Many: Centers selling this product
-
-
+  ProductID       Int                @id @default(autoincrement())
+  ProductName     String?            @db.VarChar(100)
+  Description     String?            @db.VarChar(255)
+  Price           Decimal?           @db.Decimal(10, 2)
+  StockQuantity   Int?
+  CategoryID      Int // Foreign key to productcategories
+  PaymentID       Int?
+  productcategory productcategories? @relation(fields: [CategoryID], references: [CategoryID], onDelete: Cascade, onUpdate: Cascade) // Relation to productcategories
+  // payments          payments?          @relation(fields: [PaymentID], references: [PaymentID], onDelete: NoAction, onUpdate: NoAction, map: "products_ibfk_2")
+  centerProducts  center_products[] // Many-to-Many: Centers selling this product
 
   @@index([CategoryID], map: "CategoryID")
   @@index([PaymentID], map: "PaymentID")
 }
-

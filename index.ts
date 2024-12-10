@@ -10,6 +10,7 @@ import { ProductRouter } from "./src/api/routes/ProductRouter.js";
 import cors from "cors";
 import { AuthenticationRouter } from "./src/api/routes/AuthenticationRouter.js";
 import { NeoRouter } from "./src/api/routes/Neo4j.js";
+import {MemberRouter} from "./src/api/routes/MemberRouter.js";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(cors());
 
 app.use(
   EmployeeRouter,
+  MemberRouter,
   MembershipRouter,
   ProductRouter,
   AuthenticationRouter,

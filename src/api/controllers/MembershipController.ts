@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import MembershipService from "../services/MembershipService.js";
+import {createMembershipService} from "../services/MembershipService.js";
 
-const membershipService = new MembershipService("sql")
+const membershipService = createMembershipService("sql")
 
 export async function getAll(req: Request, res: Response) {
   try {

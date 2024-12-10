@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import ProductService from "../services/ProductService.js";
+import {createProductService} from "../services/ProductService.js";
 
-const productService = new ProductService("mongo");
+const productService = createProductService("sql");
 
 export async function getAll(req: Request, res: Response) {
   try {
