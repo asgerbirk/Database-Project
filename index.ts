@@ -15,7 +15,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
-//connectToDatabase();
+connectToDatabase();
 
 app.use(
   EmployeeRouter,

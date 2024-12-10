@@ -1,0 +1,3 @@
+MachineID,MachineName,Type,Location,Manufacturer,PurchaseDate,MaintenanceDate,Status,CenterID
+1,Treadmill,Cardio,Room A,FitTech,2022-01-15,2024-06-10,Operational,1
+2,Leg Press,Strength,Room B,GymWorks,2021-05-20,2024-05-01,Operational,2

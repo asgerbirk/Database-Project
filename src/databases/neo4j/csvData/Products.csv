@@ -1,0 +1,3 @@
+ProductID,ProductName,Description,Price,StockQuantity,CategoryID,PaymentID
+1,Protein Powder,High-quality whey protein,25.00,100,1,NULL
+2,Yoga Mat,Non-slip yoga mat,20.00,50,2,NULL

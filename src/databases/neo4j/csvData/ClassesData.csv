@@ -1,0 +1,3 @@
+ClassID,ClassName,Description,ClassType,Duration,MaxParticipants,EmployeeID,CenterID,ScheduleDate,StartTime,EndTime
+1,Yoga,Relaxing yoga session,Fitness,60,20,1,2,2024-11-20,9:00:00,10:00:00
+2,Spin Class,High-intensity cycling workout,Cardio,45,15,2,1,2024-11-21,18:00:00,18:45:00
