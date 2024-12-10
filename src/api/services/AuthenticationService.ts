@@ -21,10 +21,6 @@ const REFRESH_TOKEN = process.env.REFRESH_TOKEN_SECRET;
 const JWT_EXPIRATION = process.env.JWT_EXPIRATION;
 const REFRESH_TOKEN_EXPIRATION = process.env.REFRESH_TOKEN_EXPIRATION;
 
-function formatDateofBirth(date: Date): string {
-  return "meerwaldt";
-}
-
 export async function register(
   data: {
     email: string;
@@ -125,6 +121,7 @@ export async function login(data: { email: string; password: string }) {
     {
       userId: findUserByEmail.PersonID,
       email: findUserByEmail.Email,
+      name: findUserByEmail.FirstName,
       role: findUserByEmail.Role,
     },
     JWT_SECRET,
@@ -135,6 +132,7 @@ export async function login(data: { email: string; password: string }) {
     {
       userId: findUserByEmail.PersonID,
       email: findUserByEmail.Email,
+      name: findUserByEmail.FirstName,
       role: findUserByEmail.Role,
     },
     REFRESH_TOKEN,

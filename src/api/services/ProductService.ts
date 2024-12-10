@@ -1,226 +1,195 @@
 import { PrismaClient } from "@prisma/client";
 import { ObjectId } from "mongodb";
 import { ProductInput } from "../../types/input-types/ProductInput.js";
-import { MongoDBConnection } from "../../databases/mongoDB/mongoConnection.js"; // Adjust the import path as needed
+import { MembershipInput } from "../../types/input-types/MembershipInput.js";
+import { MongoDBConnection } from "../../databases/mongoDB/mongoConnection.js";
 
-// Define an interface for the database strategy
-interface ProductRepository {
-  getAll(): Promise<any[] | { error: string }>;
-  getById(id: string): Promise<any | { error: string }>;
-  add(product: ProductInput): Promise<any | { error: string }>;
-  update(id: string, product: ProductInput): Promise<any | { error: string }>;
-  delete(id: string): Promise<any | { error: string }>;
-}
+// Shared type definitions
+type DatabaseStrategy<T> = {
+  getAll: () => Promise<any[] | { error: string }>;
+  getById: (id: any) => Promise<any | { error: string }>;
+  add?: (item: T) => Promise<any | { error: string }>;
+  update?: (id: any, item: T) => Promise<any | { error: string }>;
+  delete?: (id: any) => Promise<any | { error: string }>;
+};
 
-// SQL Strategy using Prisma
-class PrismaProductRepository implements ProductRepository {
-  private prisma: PrismaClient;
+// Product Service
+const createPrismaProductStrategy = (): DatabaseStrategy<ProductInput> => {
+  const prisma = new PrismaClient();
 
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
-
-  async getAll() {
-    try {
-      const products = await this.prisma.products.findMany({});
-      return products;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to retrieve products" };
-    }
-  }
-
-  async getById(id: string) {
-    try {
-      const product = await this.prisma.products.findUnique({
-        where: { ProductID: parseInt(id) },
-      });
-
-      if (!product) {
-        return { error: "Product not found" };
+  return {
+    getAll: async () => {
+      try {
+        return await prisma.products.findMany({});
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to retrieve products" };
       }
+    },
 
-      return product;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to retrieve product" };
-    }
-  }
+    getById: async (id: any) => {
+      try {
+        const product = await prisma.products.findUnique({
+          where: { ProductID: parseInt(id) },
+        });
 
-  async add(product: ProductInput) {
-    const {
-      ProductName,
-      Description,
-      Price,
-      StockQuantity,
-      CategoryID,
-    } = product;
+        if (!product) {
+          return { error: "Product not found" };
+        }
 
-    try {
-      const newProduct = await this.prisma.products.create({
-        data: {
-          ProductName,
-          Description,
-          Price,
-          StockQuantity,
-          CategoryID,
-        },
-      });
-
-      return newProduct;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to create product" };
-    }
-  }
-
-  async update(id: string, product: ProductInput) {
-    const {
-      ProductName,
-      Description,
-      Price,
-      StockQuantity,
-      CategoryID,
-    } = product;
-
-    try {
-      const updatedProduct = await this.prisma.products.update({
-        where: { ProductID: parseInt(id) },
-        data: {
-          ProductName,
-          Description,
-          Price,
-          StockQuantity,
-          CategoryID,
-        },
-      });
-      return updatedProduct;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to update Product" };
-    }
-  }
-
-  async delete(id: string) {
-    try {
-      return await this.prisma.products.delete({
-        where: { ProductID: parseInt(id) },
-      });
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to delete Product" };
-    }
-  }
-}
-
-// MongoDB Strategy
-class MongoProductRepository implements ProductRepository {
-  private collectionName: string;
-
-  constructor(collectionName: string = 'products') {
-    this.collectionName = collectionName;
-  }
-
-  private async getCollection() {
-    return MongoDBConnection.getCollection(this.collectionName);
-  }
-
-  async getAll() {
-    try {
-      const collection = await this.getCollection();
-      const products = await collection.find({}).toArray();
-      return products;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to retrieve products" };
-    }
-  }
-
-  async getById(id: string) {
-    try {
-      const collection = await this.getCollection();
-      const product = await collection.findOne({ _id: new ObjectId(id) });
-
-      if (!product) {
-        return { error: "Product not found" };
+        return product;
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to retrieve product" };
       }
+    },
 
-      return product;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to retrieve product" };
-    }
-  }
+    add: async (product: ProductInput) => {
+      const {
+        ProductName,
+        Description,
+        Price,
+        StockQuantity,
+        CategoryID,
+      } = product;
 
-  async add(product: ProductInput) {
-    try {
-      const collection = await this.getCollection();
-      const result = await collection.insertOne(product);
-      return result.insertedId;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to create product" };
-    }
-  }
+      try {
+        return await prisma.products.create({
+          data: {
+            ProductName,
+            Description,
+            Price,
+            StockQuantity,
+            CategoryID,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to create product" };
+      }
+    },
 
-  async update(id: string, product: ProductInput) {
-    try {
-      const collection = await this.getCollection();
-      const result = await collection.updateOne(
-        { _id: new ObjectId(id) },
-        { $set: product }
-      );
-      return result;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to update Product" };
-    }
-  }
+    update: async (id: any, product: ProductInput) => {
+      const {
+        ProductName,
+        Description,
+        Price,
+        StockQuantity,
+        CategoryID,
+      } = product;
 
-  async delete(id: string) {
-    try {
-      const collection = await this.getCollection();
-      return await collection.deleteOne({ _id: new ObjectId(id) });
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to delete Product" };
-    }
-  }
-}
+      try {
+        return await prisma.products.update({
+          where: { ProductID: parseInt(id) },
+          data: {
+            ProductName,
+            Description,
+            Price,
+            StockQuantity,
+            CategoryID,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to update Product" };
+      }
+    },
 
-// Product Service Factory
-export class ProductService {
-  private repository: ProductRepository;
+    delete: async (id: any) => {
+      try {
+        return await prisma.products.delete({
+          where: { ProductID: parseInt(id) },
+        });
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to delete Product" };
+      }
+    },
+  };
+};
 
-  constructor(dbType: 'sql' | 'mongo') {
-    if (dbType === 'sql') {
-      this.repository = new PrismaProductRepository();
-    } else if (dbType === 'mongo') {
-      this.repository = new MongoProductRepository();
-    } else {
-      throw new Error('Invalid database type');
-    }
-  }
+const createMongoProductStrategy = (collectionName: string = 'products'): DatabaseStrategy<ProductInput> => {
+  const getCollection = async () => {
+    return MongoDBConnection.getCollection(collectionName);
+  };
 
-  async getAll() {
-    return this.repository.getAll();
-  }
+  return {
+    getAll: async () => {
+      try {
+        const collection = await getCollection();
+        return await collection.find({}).toArray();
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to retrieve products" };
+      }
+    },
 
-  async getById(id: any ) {
-    return this.repository.getById(id);
-  }
+    getById: async (id: any) => {
+      try {
+        const collection = await getCollection();
+        const product = await collection.findOne({ _id: new ObjectId(id) });
 
-  async add(product: ProductInput) {
-    return this.repository.add(product);
-  }
+        if (!product) {
+          return { error: "Product not found" };
+        }
 
-  async update(id: string , product: ProductInput) {
-    return this.repository.update(id, product);
-  }
+        return product;
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to retrieve product" };
+      }
+    },
 
-  async delete(id: any ) {
-    return this.repository.delete(id);
-  }
-}
+    add: async (product: ProductInput) => {
+      try {
+        const collection = await getCollection();
+        const result = await collection.insertOne(product);
+        return result.insertedId;
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to create product" };
+      }
+    },
 
-export default ProductService;
+    update: async (id: any, product: ProductInput) => {
+      try {
+        const collection = await getCollection();
+        return await collection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: product }
+        );
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to update Product" };
+      }
+    },
+
+    delete: async (id: any) => {
+      try {
+        const collection = await getCollection();
+        return await collection.deleteOne({ _id: new ObjectId(id) });
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to delete Product" };
+      }
+    },
+  };
+};
+
+
+// Service Factory Functions
+export const createProductService = (dbType: 'sql' | 'mongo') => {
+  const strategy = dbType === 'sql'
+      ? createPrismaProductStrategy()
+      : dbType === 'mongo'
+          ? createMongoProductStrategy()
+          : (() => { throw new Error('Invalid database type'); })();
+
+  return {
+    getAll: () => strategy.getAll(),
+    getById: (id: any) => strategy.getById(id),
+    add: (product: ProductInput) => strategy.add!(product),
+    update: (id: any, product: ProductInput) => strategy.update!(id, product),
+    delete: (id: any) => strategy.delete!(id),
+  };
+};

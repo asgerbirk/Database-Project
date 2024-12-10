@@ -1,245 +1,210 @@
 import { PrismaClient } from "@prisma/client";
+import { MongoClient, ObjectId } from "mongodb";
 import { EmployeeInput } from "../../types/input-types/EmployeeInput.js";
-import { ObjectId } from "mongodb";
-import { MongoDBConnection } from "../../databases/mongoDB/mongoConnection.js"; // Adjust path as needed
+import { MongoDBConnection } from "../../databases/mongoDB/mongoConnection.js";
 
-// Define an interface for the database strategy
-interface EmployeeRepository {
-  getAll(): Promise<any[] | { error: string }>;
-  getById(id: any): Promise<any | { error: string }>;
-  add(employee: EmployeeInput): Promise<any | { error: string }>;
-  update(employee: EmployeeInput, id: any): Promise<any | { error: string }>;
-  delete(id: any): Promise<any | { error: string }>;
-}
+// Type definitions
+type DatabaseStrategy = {
+  getAll: () => Promise<any[] | { error: string }>;
+  getById: (id: any) => Promise<any | { error: string }>;
+  add: (employee: EmployeeInput) => Promise<any | { error: string }>;
+  update: (employee: EmployeeInput, id: any) => Promise<any | { error: string }>;
+  delete: (id: any) => Promise<any | { error: string }>;
+};
 
-// SQL Strategy using Prisma
-class PrismaEmployeeRepository implements EmployeeRepository {
-  private prisma: PrismaClient;
+// Prisma Database Strategy
+const createPrismaStrategy = (): DatabaseStrategy => {
+  const prisma = new PrismaClient();
 
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
-
-  async getAll() {
-    try {
-      const employees = await this.prisma.employees.findMany({
-        include: {
-          jobtitles: true,
-          person: true,
-          //departments_employees_DepartmentIDTodepartments: true,
-          //departments_departments_ManagerIDToemployees: true,
-        },
-      });
-      return employees;
-    } catch (error) {
-      return { error: "Failed to get employees" };
-    }
-  }
-
-  async getById(id: any) {
-    try {
-      const employee = await this.prisma.employees.findUnique({
-        where: { EmployeeID: parseInt(id) },
-        include: {
-          jobtitles: true,
-          person: true,
-
-          //departments_employees_DepartmentIDTodepartments: true,
-          //departments_departments_ManagerIDToemployees: true,
-        },
-      });
-
-      if (!employee) {
-        return { error: "Employee not found" };
-      }
-      return employee;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to get employee" };
-    }
-  }
-
-  async add(employee: EmployeeInput) {
-    try {
-      const {
-        FirstName,
-        LastName,
-        Email,
-        Phone,
-        Address,
-        DateOfBirth,
-        HireDate,
-        JobTitleID,
-        DepartmentID,
-        Salary,
-        EmploymentStatus,
-      } = employee;
-      // Check if the person already exists based on Email
-      let person = await this.prisma.person.findUnique({
-        where: { Email },
-      });
-
-      // If person doesn't exist, create a new one
-      if (!person) {
-        person = await this.prisma.person.create({
-          data: { FirstName, LastName, Email, Phone, Address, DateOfBirth },
+  return {
+    getAll: async () => {
+      try {
+        return await prisma.employees.findMany({
+          include: {
+            jobtitles: true,
+            person: true,
+          },
         });
+      } catch (error) {
+        return { error: "Failed to get employees" };
       }
+    },
 
-      // Create the employee with the PersonId from the person record
-      const newEmployee = await this.prisma.employees.create({
-        data: {
-          PersonID: person.PersonID,
+    getById: async (id: any) => {
+      try {
+        const employee = await prisma.employees.findUnique({
+          where: { EmployeeID: parseInt(id.id) },
+          include: {
+            jobtitles: true,
+            person: true,
+          },
+        });
+
+        if (!employee) {
+          return { error: "Employee not found" };
+        }
+        return employee;
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to get employee" };
+      }
+    },
+
+    add: async (employee: EmployeeInput) => {
+      try {
+        const {
+          FirstName,
+          LastName,
+          Email,
+          Phone,
+          Address,
+          DateOfBirth,
           HireDate,
           JobTitleID,
           DepartmentID,
           Salary,
           EmploymentStatus,
-        },
-      });
+        } = employee;
 
-      return newEmployee;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to create employee" };
-    }
-  }
+        // Check if the person already exists
+        let person = await prisma.person.findUnique({
+          where: { Email },
+        });
 
-  async update(employee: EmployeeInput, id: string) {
-    const { HireDate, JobTitleID, DepartmentID, Salary, EmploymentStatus } =
-      employee;
-    try {
-      const updatedEmployee = await this.prisma.employees.update({
-        where: { EmployeeID: parseInt(id) },
-        data: { HireDate, JobTitleID, DepartmentID, Salary, EmploymentStatus },
-      });
-      return updatedEmployee;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to update employee" };
-    }
-  }
+        // If person doesn't exist, create a new one
+        if (!person) {
+          person = await prisma.person.create({
+            data: { FirstName, LastName, Email, Phone, Address, DateOfBirth },
+          });
+        }
 
-  async delete(id: any) {
-    try {
-      return await this.prisma.employees.delete({
-        where: { EmployeeID: parseInt(id) },
-      });
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to delete employee" };
-    }
-  }
-}
-
-// MongoDB Strategy
-class MongoEmployeeRepository implements EmployeeRepository {
-  private collectionName: string;
-
-  constructor(collectionName: string = "employees") {
-    this.collectionName = collectionName;
-  }
-
-  private async getCollection() {
-    return MongoDBConnection.getCollection(this.collectionName);
-  }
-
-  async getAll() {
-    try {
-      const collection = await this.getCollection();
-      const employees = await collection.find({}).toArray();
-      return employees;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to retrieve employees" };
-    }
-  }
-
-  async getById(id: any) {
-    try {
-      const collection = await this.getCollection();
-      const employee = await collection.findOne({ _id: new ObjectId(id) });
-
-      if (!employee) {
-        return { error: "Employee not found" };
+        // Create the employee
+        return await prisma.employees.create({
+          data: {
+            PersonID: person.PersonID,
+            HireDate,
+            JobTitleID,
+            DepartmentID,
+            Salary,
+            EmploymentStatus,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to create employee" };
       }
+    },
 
-      return employee;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to retrieve employee" };
-    }
-  }
+    update: async (employee: EmployeeInput, id: string) => {
+      const { HireDate, JobTitleID, DepartmentID, Salary, EmploymentStatus } = employee;
+      try {
+        return await prisma.employees.update({
+          where: { EmployeeID: parseInt(id) },
+          data: { HireDate, JobTitleID, DepartmentID, Salary, EmploymentStatus },
+        });
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to update employee" };
+      }
+    },
 
-  async add(employee: EmployeeInput) {
-    try {
-      const collection = await this.getCollection();
-      const result = await collection.insertOne(employee);
-      return result.insertedId;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to create employee" };
-    }
-  }
+    delete: async (id: any) => {
+      try {
+        return await prisma.employees.delete({
+          where: { EmployeeID: parseInt(id) },
+        });
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to delete employee" };
+      }
+    },
+  };
+};
 
-  async update(employee: EmployeeInput, id: any) {
-    try {
-      const collection = await this.getCollection();
-      const result = await collection.updateOne(
-        { _id: new ObjectId(id) },
-        { $set: employee }
-      );
-      return result;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to update Employee" };
-    }
-  }
+// MongoDB Database Strategy
+const createMongoStrategy = (collectionName: string = "employees"): DatabaseStrategy => {
+  const getCollection = async () => {
+    return MongoDBConnection.getCollection(collectionName);
+  };
 
-  async delete(id: any) {
-    try {
-      const collection = await this.getCollection();
-      return await collection.deleteOne({ _id: new ObjectId(id) });
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to delete Employee" };
-    }
-  }
-}
+  return {
+    getAll: async () => {
+      try {
+        const collection = await getCollection();
+        return await collection.find({}).toArray();
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to retrieve employees" };
+      }
+    },
 
-// Employee Service Factory
-export class EmployeeService {
-  private repository: EmployeeRepository;
+    getById: async (id: any) => {
+      try {
+        const collection = await getCollection();
+        const employee = await collection.findOne({ _id: new ObjectId(id) });
 
-  constructor(dbType: "sql" | "mongo") {
-    if (dbType === "sql") {
-      this.repository = new PrismaEmployeeRepository();
-    } else if (dbType === "mongo") {
-      this.repository = new MongoEmployeeRepository();
-    } else {
-      throw new Error("Invalid database type");
-    }
-  }
+        if (!employee) {
+          return { error: "Employee not found" };
+        }
 
-  async getAll() {
-    return this.repository.getAll();
-  }
+        return employee;
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to retrieve employee" };
+      }
+    },
 
-  async getById(id: any) {
-    return this.repository.getById(id);
-  }
+    add: async (employee: EmployeeInput) => {
+      try {
+        const collection = await getCollection();
+        const result = await collection.insertOne(employee);
+        return result.insertedId;
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to create employee" };
+      }
+    },
 
-  async add(employee: EmployeeInput) {
-    return this.repository.add(employee);
-  }
+    update: async (employee: EmployeeInput, id: any) => {
+      try {
+        const collection = await getCollection();
+        return await collection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: employee }
+        );
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to update Employee" };
+      }
+    },
 
-  async update(id: any, employee: EmployeeInput) {
-    return this.repository.update(employee, id);
-  }
+    delete: async (id: any) => {
+      try {
+        const collection = await getCollection();
+        return await collection.deleteOne({ _id: new ObjectId(id) });
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to delete Employee" };
+      }
+    },
+  };
+};
 
-  async delete(id: any) {
-    return this.repository.delete(id);
-  }
-}
+// Employee Service Factory Function
+export const createEmployeeService = (dbType: "sql" | "mongo") => {
+  const strategy = dbType === "sql"
+      ? createPrismaStrategy()
+      : dbType === "mongo"
+          ? createMongoStrategy()
+          : (() => { throw new Error("Invalid database type"); })();
 
-export default EmployeeService;
+  return {
+    getAll: () => strategy.getAll(),
+    getById: (id: any) => strategy.getById(id),
+    add: (employee: EmployeeInput) => strategy.add(employee),
+    update: (id: any, employee: EmployeeInput) => strategy.update(employee, id),
+    delete: (id: any) => strategy.delete(id),
+  };
+};
+
+export default createEmployeeService;

@@ -1,230 +1,193 @@
-import { PrismaClient } from "@prisma/client";
-import { MembershipInput } from "../../types/input-types/MembershipInput.js";
-import { MongoClient, ObjectId } from "mongodb";
-import { MongoDBConnection } from "../../databases/mongoDB/mongoConnection.js"; // Adjust path as needed
+import {MembershipInput} from "../../types/input-types/MembershipInput.js";
+import {PrismaClient} from "@prisma/client";
+import {MongoDBConnection} from "../../databases/mongoDB/mongoConnection.js";
+import {ObjectId} from "mongodb";
 
-// Define an interface for the database strategy
-interface MembershipRepository {
-  getAll(): Promise<any[] | { error: string }>;
-  getById(id: any): Promise<any | { error: string }>;
-  add(membership: MembershipInput): Promise<any | { error: string }>;
-  update(membership: MembershipInput, id: any): Promise<any | { error: string }>;
-  delete(id: any): Promise<any | { error: string }>;
-}
+type DatabaseStrategy<T> = {
+  getAll: () => Promise<any[] | { error: string }>;
+  getById: (id: any) => Promise<any | { error: string }>;
+  add?: (item: T) => Promise<any | { error: string }>;
+  update?: (id: any, item: T) => Promise<any | { error: string }>;
+  delete?: (id: any) => Promise<any | { error: string }>;
+};
 
-// SQL Strategy using Prisma
-class PrismaMembershipRepository implements MembershipRepository {
-  private prisma: PrismaClient;
+const createPrismaMembershipStrategy = (): DatabaseStrategy<MembershipInput> => {
+  const prisma = new PrismaClient();
 
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
-
-  async getAll() {
-    try {
-      const memberships = await this.prisma.memberships.findMany({});
-      return memberships;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to retrieve memberships" };
-    }
-  }
-
-  async getById(id: any) {
-    try {
-      const membership = await this.prisma.memberships.findUnique({
-        where: { MembershipID: parseInt(id) },
-      });
-  
-      if (!membership) {
-        return { error: "Membership not found" };
+  return {
+    getAll: async () => {
+      try {
+        return await prisma.memberships.findMany({});
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to retrieve memberships" };
       }
-  
-      return membership;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to retrieve membership" };
-    }
-  }
+    },
 
-  async add(membership: MembershipInput) {
-    const {
-      MembershipName,
-      PricePerMonth,
-      AccessLevel,
-      Duration,
-      MaxClassBookings,
-      Description,
-    } = membership;
-    
-    try {
-      const newMembership = await this.prisma.memberships.create({
-        data: {
-          MembershipName,
-          PricePerMonth,
-          AccessLevel,
-          Duration,
-          MaxClassBookings,
-          Description,
-        },
-      });
-  
-      return newMembership;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to create membership" };
-    }
-  }
+    getById: async (id: any) => {
+      try {
+        const membership = await prisma.memberships.findUnique({
+          where: { MembershipID: parseInt(id) },
+        });
 
-  async update(membership: MembershipInput, id: any) {
-    const {
-      MembershipName,
-      PricePerMonth,
-      AccessLevel,
-      Duration,
-      MaxClassBookings,
-      Description 
-    } = membership;
+        if (!membership) {
+          return { error: "Membership not found" };
+        }
 
-    try {
-      const updatedMembership = await this.prisma.memberships.update({
-        where: { MembershipID: parseInt(id) },
-        data: {
-          MembershipName,
-          PricePerMonth,
-          AccessLevel,
-          Duration,
-          MaxClassBookings,
-          Description 
-        },
-      });
-      return updatedMembership;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to update Membership" };
-    }
-  }
-
-  async delete(id: any) {
-    try {
-      return await this.prisma.memberships.delete({
-        where: { MembershipID: parseInt(id) },
-      });
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to delete Membership" };
-    }
-  }
-}
-
-// MongoDB Strategy
-class MongoMembershipRepository implements MembershipRepository {
-  private collectionName: string;
-
-  constructor(collectionName: string = 'memberships') {
-    this.collectionName = collectionName;
-  }
-
-  private async getCollection() {
-    return MongoDBConnection.getCollection(this.collectionName);
-  }
-
-  async getAll() {
-    try {
-      const collection = await this.getCollection();
-      const memberships = await collection.find({}).toArray();
-      return memberships;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to retrieve memberships" };
-    }
-  }
-
-  async getById(id: any) {
-    try {
-      const collection = await this.getCollection();
-      const membership = await collection.findOne({ _id: new ObjectId(id) });
-
-      if (!membership) {
-        return { error: "Membership not found" };
+        return membership;
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to retrieve membership" };
       }
+    },
 
-      return membership;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to retrieve membership" };
-    }
-  }
+    add: async (membership: MembershipInput) => {
+      const {
+        MembershipName,
+        PricePerMonth,
+        AccessLevel,
+        Duration,
+        MaxClassBookings,
+        Description,
+      } = membership;
 
-  async add(membership: MembershipInput) {
-    try {
-      const collection = await this.getCollection();
-      const result = await collection.insertOne(membership);
-      return result.insertedId;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to create membership" };
-    }
-  }
+      try {
+        return await prisma.memberships.create({
+          data: {
+            MembershipName,
+            PricePerMonth,
+            AccessLevel,
+            Duration,
+            MaxClassBookings,
+            Description,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to create membership" };
+      }
+    },
 
-  async update(membership: MembershipInput, id: any) {
-    try {
-      const collection = await this.getCollection();
-      const result = await collection.updateOne(
-        { _id: new ObjectId(id) },
-        { $set: membership }
-      );
-      return result;
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to update Membership" };
-    }
-  }
+    update: async (id: any, membership: MembershipInput) => {
+      const {
+        MembershipName,
+        PricePerMonth,
+        AccessLevel,
+        Duration,
+        MaxClassBookings,
+        Description
+      } = membership;
 
-  async delete(id: any) {
-    try {
-      const collection = await this.getCollection();
-      return await collection.deleteOne({ _id: new ObjectId(id) });
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to delete Membership" };
-    }
-  }
-}
+      try {
+        return await prisma.memberships.update({
+          where: { MembershipID: parseInt(id) },
+          data: {
+            MembershipName,
+            PricePerMonth,
+            AccessLevel,
+            Duration,
+            MaxClassBookings,
+            Description
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to update Membership" };
+      }
+    },
 
-// Membership Service Factory
-export class MembershipService {
-  private repository: MembershipRepository;
+    delete: async (id: any) => {
+      try {
+        return await prisma.memberships.delete({
+          where: { MembershipID: parseInt(id) },
+        });
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to delete Membership" };
+      }
+    },
+  };
+};
 
-  constructor(dbType: 'sql' | 'mongo') {
-    if (dbType === 'sql') {
-      this.repository = new PrismaMembershipRepository();
-    } else if (dbType === 'mongo') {
-      this.repository = new MongoMembershipRepository();
-    } else {
-      throw new Error('Invalid database type');
-    }
-  }
+const createMongoMembershipStrategy = (collectionName: string = 'memberships'): DatabaseStrategy<MembershipInput> => {
+  const getCollection = async () => {
+    return MongoDBConnection.getCollection(collectionName);
+  };
 
-  async getAll() {
-    return this.repository.getAll();
-  }
+  return {
+    getAll: async () => {
+      try {
+        const collection = await getCollection();
+        return await collection.find({}).toArray();
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to retrieve memberships" };
+      }
+    },
 
-  async getById(id: any) {
-    return this.repository.getById(id);
-  }
+    getById: async (id: any) => {
+      try {
+        const collection = await getCollection();
+        const membership = await collection.findOne({ _id: new ObjectId(id) });
 
-  async add(membership: MembershipInput) {
-    return this.repository.add(membership);
-  }
+        if (!membership) {
+          return { error: "Membership not found" };
+        }
 
-  async update(id: any, membership: MembershipInput) {
-    return this.repository.update(membership, id);
-  }
+        return membership;
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to retrieve membership" };
+      }
+    },
 
-  async delete(id: any) {
-    return this.repository.delete(id);
-  }
-}
+    add: async (membership: MembershipInput) => {
+      try {
+        const collection = await getCollection();
+        const result = await collection.insertOne(membership);
+        return result.insertedId;
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to create membership" };
+      }
+    },
 
-export default MembershipService;
+    update: async (id: any, membership: MembershipInput) => {
+      try {
+        const collection = await getCollection();
+        return await collection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: membership }
+        );
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to update Membership" };
+      }
+    },
+
+    delete: async (id: any) => {
+      try {
+        const collection = await getCollection();
+        return await collection.deleteOne({ _id: new ObjectId(id) });
+      } catch (error) {
+        console.error(error);
+        return { error: "Failed to delete Membership" };
+      }
+    },
+  };
+};
+export const createMembershipService = (dbType: 'sql' | 'mongo') => {
+  const strategy = dbType === 'sql'
+      ? createPrismaMembershipStrategy()
+      : dbType === 'mongo'
+          ? createMongoMembershipStrategy()
+          : (() => { throw new Error('Invalid database type'); })();
+
+  return {
+    getAll: () => strategy.getAll(),
+    getById: (id: any) => strategy.getById(id),
+    add: (membership: MembershipInput) => strategy.add!(membership),
+    update: (id: any, membership: MembershipInput) => strategy.update!(id, membership),
+    delete: (id: any) => strategy.delete!(id),
+  };
+};
