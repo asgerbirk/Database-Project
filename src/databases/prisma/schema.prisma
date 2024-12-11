@@ -151,9 +151,10 @@ model members {
 
   JoinDate          DateTime?        @db.Date
   EmergencyContact  String?          @db.VarChar(15)
-  membership        memberships?     @relation(fields: [MembershipID], references: [MembershipID], onDelete: SetNull, onUpdate: NoAction)
   memberBookings    member_bookings[] // Many-to-many relation with bookings
   payments          payments[]       // One-to-Many: A member can make multiple  payments
+  membership        memberships?     @relation(fields: [MembershipID], references: [MembershipID], onDelete: SetNull)
+
 
   person person? @relation("PersonToMember", fields: [PersonID], references: [PersonID], onDelete: Cascade)
 
