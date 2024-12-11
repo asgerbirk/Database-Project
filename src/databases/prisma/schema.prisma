@@ -147,7 +147,7 @@ model person {
 model members {
   MemberID          Int              @id @default(autoincrement())
   PersonID          Int?          @unique //  one-to-one relation with person
-  MembershipID      Int?             @unique //  one-to-one relation with memberships
+  MembershipID      Int?             
 
   JoinDate          DateTime?        @db.Date
   EmergencyContact  String?          @db.VarChar(15)
@@ -181,7 +181,8 @@ model memberships {
   MaxClassBookings Int?
   Description      String?  @db.VarChar(255)
 
-  members members? @relation // One-to-One relation with members
+  members members[]    
+
 }
 
 model payments {
