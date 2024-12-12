@@ -30,7 +30,7 @@ export async function register(
     phone?: string;
     address?: string;
     dateOfBirth?: string;
-    role?: "ADMIN" | "MEMBER";
+    //role?: "ADMIN" | "MEMBER";
     ImageUrl?: string;
     joinDate?: string;
     emergencyContact?: string;
@@ -71,7 +71,7 @@ export async function register(
       Phone: data.phone || null,
       Address: data.address || null,
       DateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
-      Role: "MEMBER",
+      //Role: "MEMBER",
       ImageUrl: imageUrl,
       member: {
         create: {

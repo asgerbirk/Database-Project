@@ -16,7 +16,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
-//connectToDatabase();
+connectToDatabase();
 
 app.use(
   EmployeeRouter,
@@ -29,6 +29,7 @@ app.use(
 
 //mongodbConnect();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
