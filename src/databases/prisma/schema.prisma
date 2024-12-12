@@ -221,3 +221,13 @@ model products {
   @@index([CategoryID], map: "CategoryID")
   @@index([PaymentID], map: "PaymentID")
 }
+
+model audit_logs {
+  AuditID     Int      @id @default(autoincrement())
+  TableName   String?  @db.VarChar(100)
+  Action      String?  @db.VarChar(50)
+  Before_data String?  @db.Text
+  After_data  String?  @db.Text
+  Changed_by  Int?     // Foreign key referencing employees
+  ChangedDate DateTime? @db.DateTime
+}
