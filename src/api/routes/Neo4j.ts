@@ -140,4 +140,35 @@ router.get("/persons/neo4j", async (req: Request, res: Response) => {
   }
 });
 
+router.get("/neo4j/members", async (req: Request, res: Response) => {
+  const session = getSession();
+
+  try {
+    const result = await session.executeRead(async (tx) => {
+      const membersResult = await tx.run(`
+        MATCH (m:Members)
+        RETURN m
+      `);
+
+      // Transform the result into an array of member objects dynamically
+      const members = membersResult.records.map(
+        (record) => record.get("m").properties
+      );
+
+      return members;
+    });
+
+    // Send the response with the list of members
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching members:", error.message);
+    res
+      .status(500)
+      .send({ error: "An error occurred while fetching members." });
+  } finally {
+    await session.close();
+    console.log("Neo4j session closed.");
+  }
+});
+
 export { router as NeoRouter };
