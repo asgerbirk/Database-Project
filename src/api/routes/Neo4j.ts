@@ -10,7 +10,7 @@ function getSession() {
   return driver.session();
 }
 
-router.post("/neo4j", async (req: Request, res: Response) => {
+router.post("/graph/persons", async (req: Request, res: Response) => {
   const session = getSession();
 
   const {
@@ -36,7 +36,7 @@ router.post("/neo4j", async (req: Request, res: Response) => {
           FirstName: $FirstName,
           LastName: $LastName,
           Email: $Email,
-          Password: $Password
+          Password: $Password,
           Role: $Role
         })
         RETURN p
@@ -109,7 +109,7 @@ router.post("/neo4j", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/persons/neo4j", async (req: Request, res: Response) => {
+router.get("/graph/persons", async (req: Request, res: Response) => {
   const session = getSession();
 
   try {

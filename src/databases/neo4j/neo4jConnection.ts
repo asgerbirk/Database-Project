@@ -30,13 +30,3 @@ export function getDriver(): Driver {
   }
   return driver;
 }
-
-/*
-const driver: Driver = neo4j.driver(
-  neo4jUri,
-  neo4j.auth.basic(username, password)
-);
-
-export const getSession = (): Session => driver.session();
-export const closeSession = async () => await driver.close();
-*/
