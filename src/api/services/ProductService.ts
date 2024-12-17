@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { ObjectId } from "mongodb";
 import { ProductInput } from "../../types/input-types/ProductInput.js";
-import { MembershipInput } from "../../types/input-types/MembershipInput.js";
 import { MongoDBConnection } from "../../databases/mongoDB/mongoConnection.js";
 
 // Shared type definitions

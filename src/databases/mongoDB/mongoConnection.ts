@@ -13,8 +13,6 @@ export class MongoDBConnection {
   private static instance: MongoClient;
   private static db: Db;
 
-  private constructor() {}
-
   public static async connect(): Promise<Db> {
     if (!this.instance) {
       try {
