@@ -11,12 +11,14 @@ import cors from "cors";
 import { AuthenticationRouter } from "./src/api/routes/AuthenticationRouter.js";
 import { NeoRouter } from "./src/api/routes/Neo4j.js";
 import { MemberRouter } from "./src/api/routes/MemberRouter.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
+app.use(cookieParser()); // MUST come before any middleware that accesses cookies
 
 app.use(express.json());
 app.use(cors());
-connectToDatabase();
+//connectToDatabase();
 
 app.use(
   EmployeeRouter,
