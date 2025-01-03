@@ -74,7 +74,7 @@ const createPrismaStrategy = (): DatabaseStrategy => {
         // If person doesn't exist, create a new one
         if (!person) {
           person = await prisma.person.create({
-            data: { FirstName, LastName, Email, Phone, Address, DateOfBirth },
+            data: { FirstName, LastName, Email, Phone, Address, DateOfBirth: new Date(DateOfBirth) },
           });
         }
 
@@ -82,7 +82,7 @@ const createPrismaStrategy = (): DatabaseStrategy => {
         return await prisma.employees.create({
           data: {
             PersonID: person.PersonID,
-            HireDate,
+            HireDate: new Date(HireDate),
             JobTitleID,
             DepartmentID,
             Salary,
@@ -95,12 +95,12 @@ const createPrismaStrategy = (): DatabaseStrategy => {
       }
     },
 
-    update: async (employee: EmployeeInput, id: string) => {
+    update: async (employee: EmployeeInput, id: any) => {
       const { HireDate, JobTitleID, DepartmentID, Salary, EmploymentStatus } = employee;
       try {
         return await prisma.employees.update({
-          where: { EmployeeID: parseInt(id) },
-          data: { HireDate, JobTitleID, DepartmentID, Salary, EmploymentStatus },
+          where: { EmployeeID: parseInt(id.id) },
+          data: { HireDate: new Date(HireDate), JobTitleID, DepartmentID, Salary, EmploymentStatus },
         });
       } catch (error) {
         console.error(error);
@@ -111,7 +111,7 @@ const createPrismaStrategy = (): DatabaseStrategy => {
     delete: async (id: any) => {
       try {
         return await prisma.employees.delete({
-          where: { EmployeeID: parseInt(id) },
+          where: { EmployeeID: parseInt(id.id) },
         });
       } catch (error) {
         console.error(error);

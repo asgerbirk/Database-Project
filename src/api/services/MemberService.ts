@@ -35,11 +35,13 @@ const createPrismaMemberStrategy = (): DatabaseStrategy => {
                     include: {
                         membership: true,
                         person: true,
-                        memberBookings: true,
-                        payments: true,
+                        memberBookings: {
+                            include: {
+                                class: true
+                            }
+                        },
                     },
                 });
-
                 if (!member) {
                     return { error: "Member not found" };
                 }

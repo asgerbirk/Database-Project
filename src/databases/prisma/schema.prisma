@@ -8,12 +8,13 @@ datasource db {
 }
 
 model bookings {
-  BookingID      Int               @id @default(autoincrement())
-  ClassID        Int?
-  BookingDate    DateTime?         @db.Date
-  Status         String?           @db.VarChar(50)
-  class          classes?          @relation(fields: [ClassID], references: [ClassID], onDelete: Cascade)
-  memberBookings member_bookings[]
+  BookingID   Int       @id @default(autoincrement())
+  ClassID     Int
+  BookingDate DateTime? @db.Date
+  Status      String?   @db.VarChar(50)
+  class       classes?  @relation(fields: [ClassID], references: [ClassID], onDelete: Cascade)
+  members     members?  @relation(fields: [MemberID], references: [MemberID])
+  MemberID    Int?
 
   @@index([ClassID], map: "ClassID")
 }
@@ -121,28 +122,17 @@ model person {
 }
 
 model members {
-  MemberID         Int               @id @default(autoincrement())
-  PersonID         Int?              @unique
-  JoinDate         DateTime?         @db.Date
+  MemberID         Int          @id @default(autoincrement())
+  PersonID         Int?         @unique
+  JoinDate         DateTime?    @db.Date
   MembershipID     Int?
-  EmergencyContact String?           @db.VarChar(15)
-  memberBookings   member_bookings[]
-  membership       memberships?      @relation(fields: [MembershipID], references: [MembershipID])
-  person           person?           @relation("PersonToMember", fields: [PersonID], references: [PersonID], onDelete: Cascade)
+  EmergencyContact String?      @db.VarChar(15)
+  memberBookings   bookings[]
+  membership       memberships? @relation(fields: [MembershipID], references: [MembershipID])
+  person           person?      @relation("PersonToMember", fields: [PersonID], references: [PersonID], onDelete: Cascade)
   payments         payments[]
 
   @@index([MembershipID], map: "MembershipID")
-}
-
-model member_bookings {
-  MemberBookingID Int      @id @default(autoincrement())
-  MemberID        Int
-  BookingID       Int
-  booking         bookings @relation(fields: [BookingID], references: [BookingID], onDelete: Cascade)
-  member          members  @relation(fields: [MemberID], references: [MemberID], onDelete: Cascade)
-
-  @@unique([MemberID, BookingID])
-  @@index([BookingID], map: "member_bookings_BookingID_fkey")
 }
 
 model memberships {
@@ -202,14 +192,13 @@ model audit_logs {
 }
 
 model archived_bookings {
-  BookingID   Int      @id // Use the same BookingID as the primary key
+  BookingID   Int       @id // Use the same BookingID as the primary key
   ClassID     Int?
   BookingDate DateTime?
   Status      String?   @db.VarChar(50)
 
-  @@map("archived_bookings") 
+  @@map("archived_bookings")
 }
-
 
 enum Role {
   ADMIN
@@ -217,4 +206,3 @@ enum Role {
   MANAGER
   BASIC
 }
-

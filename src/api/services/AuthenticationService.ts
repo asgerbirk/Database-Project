@@ -36,7 +36,7 @@ export async function register(
     ImageUrl?: string;
     joinDate?: string;
     emergencyContact?: string;
-    memberShip: string;
+    membershipId: string;
   },
   file?: Express.Multer.File // Separate the image file
 ) {
@@ -64,7 +64,6 @@ export async function register(
     await s3Client.send(new PutObjectCommand(params));
     imageUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${originalName}`;
   }
-
   const newUser = await prisma.person.create({
     data: {
       Email: data.email,
@@ -74,11 +73,10 @@ export async function register(
       Phone: data.phone || null,
       Address: data.address || null,
       DateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
-      //Role: "MEMBER",
       ImageUrl: imageUrl,
       member: {
         create: {
-          MembershipID: parseInt(data.memberShip, 10),
+          MembershipID: parseInt(data.membershipId),
           JoinDate: new Date(),
           EmergencyContact: data.emergencyContact || null,
         },
@@ -105,6 +103,9 @@ export async function getAllPersons() {
 export async function login(data: { email: string; password: string }) {
   const findUserByEmail = await prisma.person.findUnique({
     where: { Email: data.email },
+    include: {
+      member: true,
+    },
   });
 
   if (!findUserByEmail) {
@@ -124,6 +125,7 @@ export async function login(data: { email: string; password: string }) {
     {
       userId: findUserByEmail.PersonID,
       email: findUserByEmail.Email,
+      memberId: findUserByEmail.member.MemberID,
       name: findUserByEmail.FirstName,
       role: findUserByEmail.Role,
     },
@@ -140,6 +142,7 @@ export async function login(data: { email: string; password: string }) {
     {
       userId: findUserByEmail.PersonID,
       email: findUserByEmail.Email,
+      memberId: findUserByEmail.member.MemberID,
       name: findUserByEmail.FirstName,
       role: findUserByEmail.Role,
     },
