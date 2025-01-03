@@ -16,6 +16,7 @@ const s3Client = new S3Client({
   },
 });
 
+//random data added to a password before it is hashed
 const SALT_ROUNDS = 10;
 
 const JWT_SECRET = process.env.JWT_TOKEN;

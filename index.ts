@@ -1,5 +1,4 @@
 import express from "express";
-import helmet from "helmet";
 
 import "dotenv/config";
 import swaggerUi from "swagger-ui-express";
@@ -16,13 +15,29 @@ import { MemberRouter } from "./src/api/routes/MemberRouter.js";
 import { BookingRouter } from "./src/api/routes/BookingRouter.js";
 import { ClassesRouter } from "./src/api/routes/ClassRouter.js";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
 
 const app = express();
-app.use(cookieParser()); // MUST come before any middleware that accesses cookies
 
 // Middleware to set security-related HTTP headers
-// Helps prevent common vulnerabilities like XSS
-app.use(helmet());
+//Does not work get this error:  TSError: ⨯ Unable to compile TypeScript:
+//but
+/*
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"], // Allow resources from the same origin
+        scriptSrc: ["'self'", "example.com"], // Allow scripts from the same origin and example.com
+
+      },
+    },
+  })
+);
+*/
+// The CSP header is designed to mitigate attacks such as Cross-Site Scripting (XSS).
+
+app.use(cookieParser()); // MUST come before any middleware that accesses cookies
 
 // Middleware to parse incoming JSON requests
 // Makes JSON payload data available in `req.body`
