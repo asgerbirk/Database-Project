@@ -20,7 +20,9 @@ const s3Client = new S3Client({
 const SALT_ROUNDS = 10;
 
 const JWT_SECRET = process.env.JWT_TOKEN;
+
 const REFRESH_TOKEN = process.env.REFRESH_TOKEN_SECRET;
+
 const JWT_EXPIRATION = process.env.JWT_EXPIRATION;
 const REFRESH_TOKEN_EXPIRATION = process.env.REFRESH_TOKEN_EXPIRATION;
 
@@ -99,6 +101,68 @@ export async function register(
 
   return newUser;
 }
+
+export async function createAdminUser(
+    data: {
+      email: string;
+      password: string;
+      firstName?: string;
+      lastName?: string;
+      phone?: string;
+      address?: string;
+      dateOfBirth?: string;
+      imageUrl?: string;
+    },
+    file?: Express.Multer.File // Optional profile picture upload
+) {
+  // Check if the email is already in use
+  const existingUser = await prisma.person.findUnique({
+    where: { Email: data.email },
+  });
+
+  if (existingUser) {
+    throw new Error("Email is already taken");
+  }
+
+  // Hash the password before saving
+  const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
+
+  let profileImageUrl: string | null = null;
+
+  // Handle file upload to S3 if a profile picture is provided
+  if (file) {
+    const uniqueFileName = `${Date.now()}-${file.originalname}`;
+    const uploadParams = {
+      Bucket: process.env.AWS_BUCKET_NAME || "",
+      Key: uniqueFileName,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    };
+
+    // Upload file to S3
+    await s3Client.send(new PutObjectCommand(uploadParams));
+    profileImageUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${uniqueFileName}`;
+  }
+
+  // Create the admin user in the database
+  const adminUser = await prisma.person.create({
+    data: {
+      Email: data.email,
+      Password: hashedPassword,
+      FirstName: data.firstName || null,
+      LastName: data.lastName || null,
+      Phone: data.phone || null,
+      Address: data.address || null,
+      DateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
+      ImageUrl: profileImageUrl,
+      Role: "ADMIN", // Set the role to ADMIN
+    },
+  });
+
+  return adminUser;
+}
+
+
 
 export async function getAllPersons() {
   const getAllPersons = await prisma.person.findMany({
