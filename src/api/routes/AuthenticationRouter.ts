@@ -6,6 +6,7 @@ import {
   getAllPersons,
 } from "../controllers/AuthenticationController.js";
 import multer from "multer";
+import { generateCsrf } from "../middleware/csrfProtection.js";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -126,7 +127,7 @@ router.post("/register", upload.single("image"), register);
  *       400:
  *         description: Bad Request
  */
-router.post("/login", login);
+router.post("/login", generateCsrf, login);
 
 /**
  * @swagger

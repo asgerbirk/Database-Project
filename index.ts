@@ -13,25 +13,26 @@ import { AuthenticationRouter } from "./src/api/routes/AuthenticationRouter.js";
 import { MemberRouter } from "./src/api/routes/MemberRouter.js";
 import { BookingRouter } from "./src/api/routes/BookingRouter.js";
 import { ClassesRouter } from "./src/api/routes/ClassRouter.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
+app.use(cookieParser()); // MUST come before any middleware that accesses cookies
 
 // Middleware to parse JSON and URL-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Add this to handle form data
 app.use(cors());
-
-// connectToDatabase();
+//connectToDatabase();
 
 app.use(
-    EmployeeRouter,
-    MemberRouter,
-    MembershipRouter,
-    ProductRouter,
-    AuthenticationRouter,
-    // NeoRouter,
-    BookingRouter,
-    ClassesRouter
+  EmployeeRouter,
+  MemberRouter,
+  MembershipRouter,
+  ProductRouter,
+  AuthenticationRouter,
+  // NeoRouter,
+  BookingRouter,
+  ClassesRouter
 );
 
 //mongodbConnect();
@@ -41,6 +42,6 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   console.log(
-      `Swagger docs are available at http://localhost:${PORT}/api-docs`
+    `Swagger docs are available at http://localhost:${PORT}/api-docs`
   );
 });

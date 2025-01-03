@@ -1,7 +1,11 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  ServerSideEncryption,
+} from "@aws-sdk/client-s3";
 
 const prisma = new PrismaClient();
 const s3Client = new S3Client({
@@ -15,9 +19,7 @@ const s3Client = new S3Client({
 const SALT_ROUNDS = 10;
 
 const JWT_SECRET = process.env.JWT_TOKEN;
-
 const REFRESH_TOKEN = process.env.REFRESH_TOKEN_SECRET;
-
 const JWT_EXPIRATION = process.env.JWT_EXPIRATION;
 const REFRESH_TOKEN_EXPIRATION = process.env.REFRESH_TOKEN_EXPIRATION;
 
@@ -30,6 +32,7 @@ export async function register(
     phone?: string;
     address?: string;
     dateOfBirth?: string;
+    role?: "ADMIN" | "MEMBER";
     ImageUrl?: string;
     joinDate?: string;
     emergencyContact?: string;
@@ -55,6 +58,7 @@ export async function register(
       Key: originalName,
       Body: file.buffer,
       ContentType: file.mimetype,
+      ServerSideEncryption: "AES256" as "AES256",
     };
 
     await s3Client.send(new PutObjectCommand(params));
@@ -86,7 +90,6 @@ export async function register(
   return newUser;
 }
 
-
 export async function getAllPersons() {
   const getAllPersons = await prisma.person.findMany({
     include: {
@@ -102,7 +105,7 @@ export async function login(data: { email: string; password: string }) {
     where: { Email: data.email },
     include: {
       member: true,
-    }
+    },
   });
 
   if (!findUserByEmail) {
@@ -129,6 +132,11 @@ export async function login(data: { email: string; password: string }) {
     JWT_SECRET,
     { expiresIn: JWT_EXPIRATION }
   );
+
+  const decodedAccessTokenHeader = jwt.decode(accessToken, {
+    complete: true,
+  })?.header;
+  console.log("Access Token Algorithm:", decodedAccessTokenHeader?.alg);
 
   const refreshToken = jwt.sign(
     {
