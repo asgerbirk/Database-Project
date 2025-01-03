@@ -14,7 +14,6 @@ vi.mock("@prisma/client", () => ({
 }));
 
 const mockPrisma = new PrismaClient();
-// const mockS3Client = new S3Client();
 
 // Set lower SALT_ROUNDS for tests
 process.env.SALT_ROUNDS = "1";
@@ -30,20 +29,20 @@ describe("register function", () => {
         // Mocking S3 to simulate file upload
         // mockS3Client.send.mockResolvedValue({});
 
+        const fixedDate = new Date("2024-12-27T10:37:14.491Z");
+
         const mockUser = {
-            Email: "test@test.com",
+            Email: "test1@test.com",
             Password: "password123",
             FirstName: "John",
             LastName: "Doe",
-            member: { MembershipID: 999, JoinDate: new Date() },
+            member: { MembershipID: 999, JoinDate: fixedDate },
         };
+
         mockPrisma.person.create.mockResolvedValue(mockUser);
 
-        // const file = {
-        //     originalname: "profile.jpg",
-        //     buffer: Buffer.from("mockImageBuffer"),
-        //     mimetype: "image/jpeg",
-        // } as Express.Multer.File;
+
+
 
         const data = {
             email: "test@test.com",
@@ -55,7 +54,13 @@ describe("register function", () => {
 
         const result = await AuthenticationService.register(data);
         // Validate user creation
-        expect(result).toEqual(mockUser);
+        expect(result.Email).toBe(mockUser.Email);
+        expect(result.Password).toBe(mockUser.Password);
+        expect(result.FirstName).toBe(mockUser.FirstName);
+        expect(result.LastName).toBe(mockUser.LastName);
+        expect(result.member.MembershipID).toBe(mockUser.member.MembershipID);
+        expect(new Date(result.member.JoinDate).toISOString()).toBe(fixedDate.toISOString());
+
         expect(mockPrisma.person.findUnique).toHaveBeenCalledWith({
             where: { Email: data.email },
         });
@@ -67,7 +72,6 @@ describe("register function", () => {
         );
         expect(isPasswordValid).toBe(true);
 
-        // expect(mockS3Client.send).toHaveBeenCalledWith(expect.any(PutObjectCommand));
         expect(mockPrisma.person.create).toHaveBeenCalled();
     });
 

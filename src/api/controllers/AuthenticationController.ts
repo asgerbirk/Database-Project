@@ -13,9 +13,21 @@ export async function register(req: Request, res: Response) {
   }
 }
 
+export async function createAdminUser(req: Request, res: Response) {
+    try {
+        const personData = req.body;
+        const file = req.file;
+        const newUser = await AuthenticationService.createAdminUser(personData, file);
+        res.status(201).send(newUser);
+    } catch (error) {
+        res.status(400).send({ error: error.message });
+    }
+}
+
 //Controller for user login.
 //Receives email and password from the request body.
 //Calls the `login` service to authenticate the user and generate tokens.
+
 export async function login(req: Request, res: Response) {
   try {
     const { accessToken, refreshToken } = await AuthenticationService.login(
@@ -26,7 +38,7 @@ export async function login(req: Request, res: Response) {
       cookie.serialize("accessToken", accessToken, {
         httpOnly: true,
         // true: Makes the cookie inaccessible to JavaScript running in the browser.
-        // false: Allows JavaScript (via document.cookie) to read/write the cookie.
+        // false: Allows JavaScript (e.g., via document.cookie) to read/write the cookie.
 
         secure: false, // Set to false during testing
         //true: The cookie is only sent to the server when using HTTPS.
