@@ -13,6 +13,7 @@ import { AuthenticationRouter } from "./src/api/routes/AuthenticationRouter.js";
 import { MemberRouter } from "./src/api/routes/MemberRouter.js";
 import { BookingRouter } from "./src/api/routes/BookingRouter.js";
 import { ClassesRouter } from "./src/api/routes/ClassRouter.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 app.use(cookieParser()); // MUST come before any middleware that accesses cookies
@@ -21,7 +22,7 @@ app.use(cookieParser()); // MUST come before any middleware that accesses cookie
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Add this to handle form data
 app.use(cors());
-connectToDatabase();
+//connectToDatabase();
 
 app.use(
   EmployeeRouter,
