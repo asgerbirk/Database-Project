@@ -20,7 +20,9 @@ const s3Client = new S3Client({
 const SALT_ROUNDS = 10;
 
 const JWT_SECRET = process.env.JWT_TOKEN;
+
 const REFRESH_TOKEN = process.env.REFRESH_TOKEN_SECRET;
+
 const JWT_EXPIRATION = process.env.JWT_EXPIRATION;
 const REFRESH_TOKEN_EXPIRATION = process.env.REFRESH_TOKEN_EXPIRATION;
 
@@ -100,6 +102,68 @@ export async function register(
   return newUser;
 }
 
+export async function createAdminUser(
+    data: {
+      email: string;
+      password: string;
+      firstName?: string;
+      lastName?: string;
+      phone?: string;
+      address?: string;
+      dateOfBirth?: string;
+      imageUrl?: string;
+    },
+    file?: Express.Multer.File // Optional profile picture upload
+) {
+  // Check if the email is already in use
+  const existingUser = await prisma.person.findUnique({
+    where: { Email: data.email },
+  });
+
+  if (existingUser) {
+    throw new Error("Email is already taken");
+  }
+
+  // Hash the password before saving
+  const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
+
+  let profileImageUrl: string | null = null;
+
+  // Handle file upload to S3 if a profile picture is provided
+  if (file) {
+    const uniqueFileName = `${Date.now()}-${file.originalname}`;
+    const uploadParams = {
+      Bucket: process.env.AWS_BUCKET_NAME || "",
+      Key: uniqueFileName,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    };
+
+    // Upload file to S3
+    await s3Client.send(new PutObjectCommand(uploadParams));
+    profileImageUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${uniqueFileName}`;
+  }
+
+  // Create the admin user in the database
+  const adminUser = await prisma.person.create({
+    data: {
+      Email: data.email,
+      Password: hashedPassword,
+      FirstName: data.firstName || null,
+      LastName: data.lastName || null,
+      Phone: data.phone || null,
+      Address: data.address || null,
+      DateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
+      ImageUrl: profileImageUrl,
+      Role: "ADMIN", // Set the role to ADMIN
+    },
+  });
+
+  return adminUser;
+}
+
+
+
 export async function getAllPersons() {
   const getAllPersons = await prisma.person.findMany({
     include: {
@@ -112,13 +176,13 @@ export async function getAllPersons() {
 
 export async function login(data: { email: string; password: string }) {
   // Look up the user by their email address
-  // Use "include" to fetch related member information
   const findUserByEmail = await prisma.person.findUnique({
     where: { Email: data.email },
     include: {
-      member: true,
+      member: true, // Include member information if it exists
     },
   });
+
   // If no user is found, throw an error
   if (!findUserByEmail) {
     throw new Error("No user with that email");
@@ -126,51 +190,44 @@ export async function login(data: { email: string; password: string }) {
 
   // Compare the provided password with the stored hashed password
   const isPasswordValid = await bcrypt.compare(
-    data.password,
-    findUserByEmail.Password
+      data.password,
+      findUserByEmail.Password
   );
 
   // If the password is invalid, throw an error
-
   if (!isPasswordValid) {
     throw new Error("Password is not valid");
   }
 
-  // Generate an access token with user details
-  // Use the JWT_SECRET environment variable for signing
-  // Set an expiration time using JWT_EXPIRATION
-  const accessToken = jwt.sign(
-    {
-      userId: findUserByEmail.PersonID,
-      email: findUserByEmail.Email,
-      memberId: findUserByEmail.member.MemberID,
-      name: findUserByEmail.FirstName,
-      role: findUserByEmail.Role,
-    },
-    JWT_SECRET,
-    { expiresIn: JWT_EXPIRATION }
-  );
+  // Prepare user payload for JWT generation
+  const jwtPayload = {
+    userId: findUserByEmail.PersonID,
+    email: findUserByEmail.Email,
+    name: findUserByEmail.FirstName,
+    role: findUserByEmail.Role,
+    memberId: findUserByEmail.member?.MemberID || null, // Handle cases where member might not exist
+  };
 
-  // Decode the JWT accesstoken
+  // Generate an access token with user details
+  const accessToken = jwt.sign(jwtPayload, JWT_SECRET, {
+    expiresIn: JWT_EXPIRATION,
+  });
+
+  // Log token details for debugging
   const decodedAccessTokenHeader = jwt.decode(accessToken, {
     complete: true,
   })?.header;
   console.log("Access Token Algorithm:", decodedAccessTokenHeader?.alg);
 
-  const refreshToken = jwt.sign(
-    {
-      userId: findUserByEmail.PersonID,
-      email: findUserByEmail.Email,
-      memberId: findUserByEmail.member.MemberID,
-      name: findUserByEmail.FirstName,
-      role: findUserByEmail.Role,
-    },
-    REFRESH_TOKEN,
-    { expiresIn: REFRESH_TOKEN_EXPIRATION }
-  );
+  // Generate a refresh token with user details
+  const refreshToken = jwt.sign(jwtPayload, REFRESH_TOKEN, {
+    expiresIn: REFRESH_TOKEN_EXPIRATION,
+  });
 
+  // Return the generated tokens
   return { accessToken, refreshToken };
 }
+
 
 export async function refreshToken(data: { token: string }) {
   try {

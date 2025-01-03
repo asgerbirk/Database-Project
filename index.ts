@@ -15,7 +15,6 @@ import { MemberRouter } from "./src/api/routes/MemberRouter.js";
 import { BookingRouter } from "./src/api/routes/BookingRouter.js";
 import { ClassesRouter } from "./src/api/routes/ClassRouter.js";
 import cookieParser from "cookie-parser";
-import helmet from "helmet";
 
 const app = express();
 
@@ -36,6 +35,24 @@ app.use(
 );
 */
 // The CSP header is designed to mitigate attacks such as Cross-Site Scripting (XSS).
+
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    `
+    default-src 'self'; 
+    script-src 'self'; 
+    style-src 'self'; 
+    img-src 'self' data:; 
+    object-src 'none'; 
+    base-uri 'self'; 
+    form-action 'self'; 
+    upgrade-insecure-requests; 
+    block-all-mixed-content;
+    `.trim()
+  );
+  next();
+});
 
 app.use(cookieParser()); // MUST come before any middleware that accesses cookies
 
