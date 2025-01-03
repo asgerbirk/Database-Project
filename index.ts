@@ -29,7 +29,7 @@ app.use(
       directives: {
         defaultSrc: ["'self'"], // Allow resources from the same origin
         scriptSrc: ["'self'", "example.com"], // Allow scripts from the same origin and example.com
-
+        
       },
     },
   })
