@@ -1,4 +1,5 @@
 import express from "express";
+import helmet from "helmet";
 
 import "dotenv/config";
 import swaggerUi from "swagger-ui-express";
@@ -15,7 +16,6 @@ import { MemberRouter } from "./src/api/routes/MemberRouter.js";
 import { BookingRouter } from "./src/api/routes/BookingRouter.js";
 import { ClassesRouter } from "./src/api/routes/ClassRouter.js";
 import cookieParser from "cookie-parser";
-import helmet from "helmet";
 
 const app = express();
 
