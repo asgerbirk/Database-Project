@@ -3,6 +3,10 @@ import { Request, Response, NextFunction } from "express";
 
 const JWT_SECRET = process.env.JWT_TOKEN;
 
+//MIddleware to authenticate a user based on JWT token
+//Extracts the token from the authrorization header
+//verify token with secret key
+//decods the token so we get the user data.
 export function authenticateToken(
   req: Request,
   res: Response,
@@ -25,6 +29,10 @@ export function authenticateToken(
   }
 }
 
+// Middleware to authorize a user based on their role.
+//Accepts an array of allowed roles.
+//Checks the role of the authenticated user attached to the request object.
+//
 export function authorizeRoles(allowedRoles: Array<"ADMIN" | "MEMBER">) {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = (req as any).user;

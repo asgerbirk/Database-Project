@@ -23,6 +23,12 @@ const REFRESH_TOKEN = process.env.REFRESH_TOKEN_SECRET;
 const JWT_EXPIRATION = process.env.JWT_EXPIRATION;
 const REFRESH_TOKEN_EXPIRATION = process.env.REFRESH_TOKEN_EXPIRATION;
 
+// Function to register a new user.
+//Validates the uniqueness of the email address.
+//Hashes the password using bcrypt.
+//Optionally uploads the user's profile image to S3 with server-side encryption.
+//Stores user details in the database, including secure fields like the hashed password.
+
 export async function register(
   data: {
     email: string;
@@ -48,8 +54,10 @@ export async function register(
     throw new Error("Email is already taken");
   }
 
+  // Hash the user's password securely
   const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
 
+  // Upload the profile image securely to S3
   let imageUrl: string | null = null;
   if (file) {
     const originalName = `${Date.now()}-${file.originalname}`;
@@ -58,10 +66,11 @@ export async function register(
       Key: originalName,
       Body: file.buffer,
       ContentType: file.mimetype,
-      ServerSideEncryption: "AES256" as "AES256",
+      ServerSideEncryption: "AES256" as "AES256", // Enforce server-side encryption
     };
 
     await s3Client.send(new PutObjectCommand(params));
+    // Generate a secure URL for the uploaded image
     imageUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${originalName}`;
   }
   const newUser = await prisma.person.create({
@@ -101,26 +110,34 @@ export async function getAllPersons() {
 }
 
 export async function login(data: { email: string; password: string }) {
+  // Look up the user by their email address
+  // Use "include" to fetch related member information
   const findUserByEmail = await prisma.person.findUnique({
     where: { Email: data.email },
     include: {
       member: true,
     },
   });
-
+  // If no user is found, throw an error
   if (!findUserByEmail) {
     throw new Error("No user with that email");
   }
 
+  // Compare the provided password with the stored hashed password
   const isPasswordValid = await bcrypt.compare(
     data.password,
     findUserByEmail.Password
   );
 
+  // If the password is invalid, throw an error
+
   if (!isPasswordValid) {
     throw new Error("Password is not valid");
   }
 
+  // Generate an access token with user details
+  // Use the JWT_SECRET environment variable for signing
+  // Set an expiration time using JWT_EXPIRATION
   const accessToken = jwt.sign(
     {
       userId: findUserByEmail.PersonID,
