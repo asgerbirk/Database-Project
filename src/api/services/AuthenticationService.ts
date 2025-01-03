@@ -150,6 +150,7 @@ export async function login(data: { email: string; password: string }) {
     { expiresIn: JWT_EXPIRATION }
   );
 
+  // Decode the JWT accesstoken
   const decodedAccessTokenHeader = jwt.decode(accessToken, {
     complete: true,
   })?.header;

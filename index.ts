@@ -1,4 +1,6 @@
 import express from "express";
+import helmet from "helmet";
+
 import "dotenv/config";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./src/config/swaggerConfig.js";
@@ -18,9 +20,18 @@ import cookieParser from "cookie-parser";
 const app = express();
 app.use(cookieParser()); // MUST come before any middleware that accesses cookies
 
-// Middleware to parse JSON and URL-encoded data
+// Middleware to set security-related HTTP headers
+// Helps prevent common vulnerabilities like XSS
+app.use(helmet());
+
+// Middleware to parse incoming JSON requests
+// Makes JSON payload data available in `req.body`
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // Add this to handle form data
+
+// handle sform data
+app.use(express.urlencoded({ extended: true }));
+
+// Middleware to enable Cross-Origin Resource Sharing (CORS)
 app.use(cors());
 //connectToDatabase();
 
