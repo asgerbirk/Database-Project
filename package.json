@@ -10,7 +10,8 @@
     "test": "vitest",
     "migrate": "npx prisma migrate dev --name",
     "pull": "npx prisma db pull",
-    "reset": "npx prisma migrate reset --force && npm run cleanup-indexes"
+    "reset": "npx prisma migrate reset --force && npm run cleanup-indexes",
+    "seed": "node --loader ts-node/esm src/databases/mongoDB/services/seedMongo.ts"
   },
   "prisma": {
     "schema": "./src/databases/prisma/schema.prisma"
@@ -45,6 +46,7 @@
     "neo4j-driver": "^5.26.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
+    "xml2js": "^0.6.2",
     "zod": "^3.23.8"
   }
 }
