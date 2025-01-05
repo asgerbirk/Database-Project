@@ -4,17 +4,17 @@ import "dotenv/config";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./src/config/swaggerConfig.js";
 import { EmployeeRouter } from "./src/api/routes/EmployeeRouter.js";
-// import { connectToDatabase } from "./src/databases/neo4j/neo4jConnection.js";
 // import { mongodbConnect } from "./src/databases/mongoDB/mongoConnection.js";
 import { MembershipRouter } from "./src/api/routes/MembershipRouter.js";
 import { ProductRouter } from "./src/api/routes/ProductRouter.js";
 import cors from "cors";
 import { AuthenticationRouter } from "./src/api/routes/AuthenticationRouter.js";
-// import { NeoRouter } from "./src/api/routes/Neo4j.js";
+import { NeoRouter } from "./src/api/routes/Neo4j.js";
 import { MemberRouter } from "./src/api/routes/MemberRouter.js";
 import { BookingRouter } from "./src/api/routes/BookingRouter.js";
 import { ClassesRouter } from "./src/api/routes/ClassRouter.js";
 import cookieParser from "cookie-parser";
+import {connectToDatabase} from "./src/databases/neo4j/neo4jConnection.js";
 
 const app = express();
 
@@ -67,7 +67,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Middleware to enable Cross-Origin Resource Sharing (CORS)
 app.use(cors());
-//connectToDatabase();
+connectToDatabase().then(r => r);
 
 app.use(
   EmployeeRouter,
@@ -75,7 +75,7 @@ app.use(
   MembershipRouter,
   ProductRouter,
   AuthenticationRouter,
-  // NeoRouter,
+  NeoRouter,
   BookingRouter,
   ClassesRouter
 );

@@ -176,7 +176,6 @@ const createMongoProductStrategy = (collectionName: string = 'products'): Databa
 };
 
 
-// Service Factory Functions
 export const createProductService = (dbType: 'sql' | 'mongo') => {
   const strategy = dbType === 'sql'
       ? createPrismaProductStrategy()
