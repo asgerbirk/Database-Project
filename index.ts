@@ -36,6 +36,7 @@ app.use(
 */
 // The CSP header is designed to mitigate attacks such as Cross-Site Scripting (XSS).
 
+/*
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
@@ -53,6 +54,7 @@ app.use((req, res, next) => {
   );
   next();
 });
+*/
 
 app.use(cookieParser()); // MUST come before any middleware that accesses cookies
 
