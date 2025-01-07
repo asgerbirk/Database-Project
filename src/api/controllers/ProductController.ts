@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import {createProductService} from "../services/ProductService.js";
+import { createProductService } from "../services/ProductService.js";
 
 const productService = createProductService("sql");
 
@@ -21,7 +21,8 @@ export async function getById(req: Request, res: Response) {
   }
 }
 
-export async function add(req: Request, res: Response) { // Changed to camelCase
+export async function add(req: Request, res: Response) {
+  // Changed to camelCase
   try {
     const product = await productService.add(req.body); // Changed method name
     res.status(201).send({ product });
@@ -30,7 +31,8 @@ export async function add(req: Request, res: Response) { // Changed to camelCase
   }
 }
 
-export async function update(req: Request, res: Response) { // Changed to camelCase
+export async function update(req: Request, res: Response) {
+  // Changed to camelCase
   try {
     const product = await productService.update(req.body, req.params); // Changed method name
     res.status(200).send({ product }); // Changed to 200
@@ -39,7 +41,8 @@ export async function update(req: Request, res: Response) { // Changed to camelC
   }
 }
 
-export async function remove(req: Request, res: Response) { // Renamed to remove, changed to camelCase
+export async function remove(req: Request, res: Response) {
+  // Renamed to remove, changed to camelCase
   try {
     await productService.delete(req.params); // Changed method name
     res.status(200).send();

@@ -44,13 +44,8 @@ const createPrismaProductStrategy = (): DatabaseStrategy<ProductInput> => {
     },
 
     add: async (product: ProductInput) => {
-      const {
-        ProductName,
-        Description,
-        Price,
-        StockQuantity,
-        CategoryID,
-      } = product;
+      const { ProductName, Description, Price, StockQuantity, CategoryID } =
+        product;
 
       try {
         return await prisma.products.create({
@@ -69,13 +64,8 @@ const createPrismaProductStrategy = (): DatabaseStrategy<ProductInput> => {
     },
 
     update: async (id: any, product: ProductInput) => {
-      const {
-        ProductName,
-        Description,
-        Price,
-        StockQuantity,
-        CategoryID,
-      } = product;
+      const { ProductName, Description, Price, StockQuantity, CategoryID } =
+        product;
 
       try {
         return await prisma.products.update({
@@ -107,7 +97,9 @@ const createPrismaProductStrategy = (): DatabaseStrategy<ProductInput> => {
   };
 };
 
-const createMongoProductStrategy = (collectionName: string = 'products'): DatabaseStrategy<ProductInput> => {
+const createMongoProductStrategy = (
+  collectionName: string = "products"
+): DatabaseStrategy<ProductInput> => {
   const getCollection = async () => {
     return MongoDBConnection.getCollection(collectionName);
   };
@@ -154,8 +146,8 @@ const createMongoProductStrategy = (collectionName: string = 'products'): Databa
       try {
         const collection = await getCollection();
         return await collection.updateOne(
-            { _id: new ObjectId(id) },
-            { $set: product }
+          { _id: new ObjectId(id) },
+          { $set: product }
         );
       } catch (error) {
         console.error(error);
@@ -175,13 +167,15 @@ const createMongoProductStrategy = (collectionName: string = 'products'): Databa
   };
 };
 
-
-export const createProductService = (dbType: 'sql' | 'mongo') => {
-  const strategy = dbType === 'sql'
+export const createProductService = (dbType: "sql" | "mongo") => {
+  const strategy =
+    dbType === "sql"
       ? createPrismaProductStrategy()
-      : dbType === 'mongo'
-          ? createMongoProductStrategy()
-          : (() => { throw new Error('Invalid database type'); })();
+      : dbType === "mongo"
+        ? createMongoProductStrategy()
+        : (() => {
+            throw new Error("Invalid database type");
+          })();
 
   return {
     getAll: () => strategy.getAll(),

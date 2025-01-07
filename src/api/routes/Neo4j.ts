@@ -1,3 +1,4 @@
+/*
 import { getDriver } from "../../databases/neo4j/neo4jConnection.js";
 import express, { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
@@ -9,6 +10,66 @@ function getSession() {
   const driver = getDriver();
   return driver.session();
 }
+router.get("/graph/persons", async (req: Request, res: Response) => {
+  const session = getSession();
+
+  try {
+    const result = await session.executeRead(async (tx) => {
+      const personsResult = await tx.run(`
+        MATCH (p:Person)
+        RETURN p
+      `);
+
+      // Transform the result into an array of person objects dynamically
+      const persons = personsResult.records.map(
+        (record) => record.get("p").properties
+      );
+
+      return persons;
+    });
+
+    // Send the response with the list of persons
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching persons:", error.message);
+    res
+      .status(500)
+      .send({ error: "An error occurred while fetching persons." });
+  } finally {
+    await session.close();
+    console.log("Neo4j session closed.");
+  }
+});
+
+router.get("/graph/persons/:id", async (req: Request, res: Response) => {
+  const session = getSession();
+  const { id } = req.params;
+
+  try {
+    const result = await session.executeRead(async (tx) => {
+      const personResult = await tx.run(
+        `
+        MATCH (p:Person {PersonID: $PersonID})
+        RETURN p
+        `,
+        { PersonID: id }
+      );
+
+      if (personResult.records.length === 0) {
+        throw new Error("Person not found");
+      }
+
+      return personResult.records[0].get("p").properties;
+    });
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching person:", error.message);
+    res.status(404).json({ error: "Person not found." });
+  } finally {
+    await session.close();
+  }
+});
 
 router.post("/graph/persons", async (req: Request, res: Response) => {
   const session = getSession();
@@ -19,7 +80,7 @@ router.post("/graph/persons", async (req: Request, res: Response) => {
     Email,
     Password,
     EmergencyContact,
-    JoinDate,
+    //JoinDate,
     MembershipID,
   } = req.body;
 
@@ -64,9 +125,7 @@ router.post("/graph/persons", async (req: Request, res: Response) => {
         MATCH (p:Person {PersonID: $PersonID})
         CREATE (m:Members {
           MemberID: $MemberID,
-          PersonID: $PersonID
-          JoinDate: $JoinDate,
-          EmergencyContact: $EmergencyContact,
+          PersonID: $PersonID,
           MembershipID: $MembershipID
         })
 
@@ -76,8 +135,6 @@ router.post("/graph/persons", async (req: Request, res: Response) => {
         {
           PersonID,
           MemberID,
-          JoinDate,
-          EmergencyContact,
           MembershipID,
         }
       );
@@ -109,38 +166,78 @@ router.post("/graph/persons", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/graph/persons", async (req: Request, res: Response) => {
+router.put("/graph/persons/:id", async (req: Request, res: Response) => {
   const session = getSession();
+  const { id } = req.params;
+  const { FirstName, LastName, Email, Password } = req.body;
 
   try {
-    const result = await session.executeRead(async (tx) => {
-      const personsResult = await tx.run(`
-        MATCH (p:Person)
+    const result = await session.executeWrite(async (tx) => {
+      const updateResult = await tx.run(
+        `
+        MATCH (p:Person {PersonID: $PersonID})
+        SET p += {
+          FirstName: $FirstName,
+          LastName: $LastName,
+          Email: $Email,
+          Password: $Password
+        }
         RETURN p
-      `);
-
-      // Transform the result into an array of person objects dynamically
-      const persons = personsResult.records.map(
-        (record) => record.get("p").properties
+        `,
+        { PersonID: id, FirstName, LastName, Email, Password }
       );
 
-      return persons;
+      if (updateResult.records.length === 0) {
+        throw new Error("Failed to update person");
+      }
+
+      return updateResult.records[0].get("p").properties;
     });
 
-    // Send the response with the list of persons
-    res.status(200).json(result);
+    res
+      .status(200)
+      .json({ message: "Person updated successfully.", person: result });
   } catch (error) {
-    console.error("Error fetching persons:", error.message);
+    console.error("Error updating person:", error.message);
     res
       .status(500)
-      .send({ error: "An error occurred while fetching persons." });
+      .json({ error: "An error occurred while updating the person." });
   } finally {
     await session.close();
-    console.log("Neo4j session closed.");
   }
 });
 
-router.get("/neo4j/members", async (req: Request, res: Response) => {
+// Delete a Person
+router.delete("/graph/persons/:id", async (req: Request, res: Response) => {
+  const session = getSession();
+  const { id } = req.params;
+
+  try {
+    await session.executeWrite(async (tx) => {
+      const deleteResult = await tx.run(
+        `
+        MATCH (p:Person {PersonID: $PersonID})
+        DETACH DELETE p
+        RETURN p
+        `,
+        { PersonID: id }
+      );
+
+      if (deleteResult.records.length === 0) {
+        throw new Error("Person not found");
+      }
+    });
+
+    res.status(200).json({ message: "Person deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting person:", error.message);
+    res.status(404).json({ error: "Person not found." });
+  } finally {
+    await session.close();
+  }
+});
+
+router.get("/graph/members", async (req: Request, res: Response) => {
   const session = getSession();
 
   try {
@@ -172,3 +269,4 @@ router.get("/neo4j/members", async (req: Request, res: Response) => {
 });
 
 export { router as NeoRouter };
+*/
