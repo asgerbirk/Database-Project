@@ -75,7 +75,6 @@ app.use(
   MembershipRouter,
   ProductRouter,
   AuthenticationRouter,
-  NeoRouter,
   BookingRouter,
   ClassesRouter
 );
