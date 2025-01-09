@@ -13,7 +13,6 @@ import { MemberRouter } from "./src/api/routes/MemberRouter.js";
 import { BookingRouter } from "./src/api/routes/BookingRouter.js";
 import { ClassesRouter } from "./src/api/routes/ClassRouter.js";
 import cookieParser from "cookie-parser";
-import { connectToDatabase } from "./src/databases/neo4j/neo4jConnection.js";
 
 const app = express();
 
