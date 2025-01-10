@@ -1,6 +1,6 @@
 // TODO Opsæt hjælpe funktioner til at validere data til brug i unit tests
 // TODO Hvordan skal retur typerne være her? True/false ? True / false + fejlbesked?
-import { z } from 'zod';
+import { number, z } from 'zod';
 
 // Use of RFC 5322 standard for email validation
 const emailSchema = z.string().email("Invalid email format");
@@ -59,23 +59,49 @@ export function validateZodPassword(password: string) {
 }
 
 export function validateFirstName(name: string) {
-  const nameRegex = /^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/;
+  // Tillad kun bogstaver, bindestreger og mellemrum
+  const nameRegex = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/;
 
+  // Tjek om input er tomt eller kun mellemrum
   if (!name || name.trim() === "") {
     return { isValid: false, message: "First name cannot be empty" };
   }
 
-  return nameRegex.test(name);
+  // Tjek længden
+  if (name.length < 2 || name.length > 50) {
+    return { isValid: false, message: "First name must be between 2 and 50 characters" };
+  }
+
+  // Tjek om navnet matcher regex
+  if (!nameRegex.test(name)) {
+    return { isValid: false, message: "First name can only contain letters, spaces, and hyphens" };
+  }
+
+  // Alt er i orden
+  return { isValid: true };
 }
 
 export function validateLastName(name: string) {
-  const nameRegex = /^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/;
+  // Regex tillader bogstaver, mellemrum og bindestreger
+  const nameRegex = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/;
 
+  // Tjek om input er tomt eller kun mellemrum
   if (!name || name.trim() === "") {
     return { isValid: false, message: "Last name cannot be empty" };
   }
 
-  return nameRegex.test(name);
+  // Tjek længden
+  if (name.length < 2 || name.length > 50) {
+    return { isValid: false, message: "Last name must be between 2 and 50 characters" };
+  }
+
+  // Tjek om navnet matcher regex
+  if (!nameRegex.test(name)) {
+    return { isValid: false, message: "Last name can only contain letters, spaces, and hyphens" };
+  }
+
+  // Alt er i orden
+  return { isValid: true };
 }
 
 export  function validateMembershipId(membershipId: string) {
@@ -86,22 +112,18 @@ export  function validateMembershipId(membershipId: string) {
 export function validateDateOfBirth(date: string) {
   const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
 
-  // Check if the date is empty
   if (!date || date.trim() === "") {
     return { isValid: false, message: "Date of birth cannot be empty" };
   }
 
-  // Check format
   if (!dateRegex.test(date)) {
     return { isValid: false, message: "Date must be in dd-mm-yyyy format" };
   }
 
-  // Parse date components
   const [day, month, year] = date.split("-").map(Number);
 
-  // Check logical validity of the date
   const isValidDate = (d: number, m: number, y: number) => {
-    const dateObj = new Date(y, m - 1, d); // Months are 0-indexed in JS
+    const dateObj = new Date(y, m - 1, d);
     return (
       dateObj.getFullYear() === y &&
       dateObj.getMonth() === m - 1 &&
@@ -113,16 +135,20 @@ export function validateDateOfBirth(date: string) {
     return { isValid: false, message: "Date is not a valid calendar date" };
   }
 
-  // Calculate age and validate range
-  const today = new Date();
-  const birthDate = new Date(year, month - 1, day);
+  const resetTime = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+  const today = resetTime(new Date());
+  const birthDate = resetTime(new Date(year, month - 1, day));
+
+  if (birthDate > today) {
+    return { isValid: false, message: "Date cannot be in the future" };
+  }
+
   const age = today.getFullYear() - birthDate.getFullYear();
-  const adjustedAge =
+  const isBirthdayPassedThisYear =
     today.getMonth() > birthDate.getMonth() ||
     (today.getMonth() === birthDate.getMonth() &&
-      today.getDate() >= birthDate.getDate())
-      ? age
-      : age - 1;
+      today.getDate() >= birthDate.getDate());
+  const adjustedAge = isBirthdayPassedThisYear ? age : age - 1;
 
   if (adjustedAge < 16) {
     return { isValid: false, message: "Age must be at least 16 years" };
@@ -132,60 +158,32 @@ export function validateDateOfBirth(date: string) {
     return { isValid: false, message: "Age cannot exceed 100 years" };
   }
 
-  // Check if the date is in the future
-  if (birthDate > today) {
-    return { isValid: false, message: "Date cannot be in the future" };
-  }
-
   return { isValid: true };
 }
 
-export function validateAddress(address: string) {
-  const addressRegex = /^[a-zA-Z0-9\\s,'’\\-éáàèùçöüßøåÆØÅÄÖ]*$/;
 
-  if (!address || address.trim() === "") {
-    return { isValid: false, message: "Address cannot be empty" };
-  }
-
-  if (address.length < 5 || address.length > 100) {
-    return {
-      isValid: false,
-      message: "Address must be between 5 and 100 characters",
-    };
-  }
-
-  if (!addressRegex.test(address)) {
-    return {
-      isValid: false,
-      message:
-        "Address contains invalid characters. Allowed: letters, numbers, spaces, commas, apostrophes, and hyphens",
-    };
-  }
-
-  return { isValid: true };
-}
-
-// TODO Hvordan håndtere vi at telefonnummeret kan være et internationalt nummer? --> Det kan være op til 15 characters så??
 export function validatePhoneNumber(phoneNumber: string) {
-  const phoneRegex = /^(\+?\d{1,3})?(\d{8})$/;
+  // Trim whitespace for sikkerhed
+  const trimmedPhone = phoneNumber.trim();
 
-  if (!phoneNumber || phoneNumber.trim() === "") {
+  // Tjek for tom streng
+  if (trimmedPhone === "") {
     return { isValid: false, message: "Phone number cannot be empty" };
   }
 
-  if (!phoneRegex.test(phoneNumber)) {
-    return {
-      isValid: false,
-      message: "Phone number must be 8 digits or a valid international number",
-    };
+  // Hvis præcis 8 tegn: skal være kun tal
+  if (trimmedPhone.length === 8 && /^\d{8}$/.test(trimmedPhone)) {
+    return { isValid: true };
   }
 
-  if (phoneNumber.length > 15 || phoneNumber.length < 8) {
-    return {
-      isValid: false,
-      message: "Phone number must be between 8 and 15 digits",
-    };
+  // Hvis præcis 11 tegn: skal starte med + og efterfølges af 10 tal
+  if (trimmedPhone.length === 11 && /^\+\d{10}$/.test(trimmedPhone)) {
+    return { isValid: true };
   }
 
-  return { isValid: true };
+  // Hvis ikke matcher nogen af reglerne, returnér fejl
+  return {
+    isValid: false,
+    message: "Phone number must be 8 digits or start with + followed by 10 digits",
+  };
 }
