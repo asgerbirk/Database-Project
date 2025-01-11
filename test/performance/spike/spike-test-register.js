@@ -27,7 +27,7 @@ function register() {
     email: `user${Math.floor(Math.random() * 10000)}@example.com`,
     // NOSONAR: This is test data and not used in production.
 
-    password: "password123",
+    password: process.env.TEST_PASSWORD || "password123",
     firstName: "Test",
     lastName: "User",
     phone: "123456789",
