@@ -6,32 +6,32 @@ describe('validatePassword function', () => {
         'Password123.', 
         'Password1234!', 
         'Password12345/',
-        'P@ssw0rdGood!',  // Tilføjet som ekstra test
+        'P@ssw0rdGood!', 
     ];
     
     const invalidPasswords = [
-        'password123',  // Ingen uppercase
-        'PASSWORD123',  // Ingen lowercase
-        'password',     // Ingen tal og ingen specialtegn
-        'PASSWORD',     // Ingen lowercase, ingen tal, ingen specialtegn
-        '123456',       // Ingen bogstaver eller specialtegn
-        '',             // Tom streng
-        'P@ss1',        // For kort
-        'P@ssw0rdWayTooLong123!', // For lang
+        'password123',  // No uppercase
+        'PASSWORD123',  // No lowercase
+        'password',     // Only lowercase
+        'PASSWORD',     // Only uppercase
+        '123456',       // Only numbers
+        '',             // Empty string
+        'P@ss1',        // Too short
+        'P@ssw0rdWayTooLong123!', // Too long
     ];
 
     it('should return true for valid passwords', () => {
         for (const password of validPasswords) {
             const result = validateZodPassword(password);
-            expect(result.isValid).toBe(true); // Checker kun isValid
+            expect(result.isValid).toBe(true); 
         }
     });
 
     it('should return false for invalid passwords', () => {
         for (const password of invalidPasswords) {
             const result = validateZodPassword(password);
-            expect(result.isValid).toBe(false); // Checker kun isValid
-            expect(result.message).toBeDefined(); // Fejlmeddelelse skal være der
+            expect(result.isValid).toBe(false); 
+            expect(result.message).toBeDefined(); 
         }
     });
 });

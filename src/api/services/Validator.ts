@@ -1,6 +1,6 @@
 // TODO Opsæt hjælpe funktioner til at validere data til brug i unit tests
 // TODO Hvordan skal retur typerne være her? True/false ? True / false + fejlbesked?
-import { number, z } from 'zod';
+import { z } from 'zod';
 
 // Use of RFC 5322 standard for email validation
 const emailSchema = z.string().email("Invalid email format");
@@ -12,32 +12,6 @@ export function validateEmail(email: string) {
   } catch (error) {
     return { isValid: false, message: error.errors[0].message }; // Return error message from Zod
   }
-}
-
-// Minimum 8 characters, at least one uppercase letter, one lowercase letter, one special character and one number 
-// TODO maximum 20 characters? maximum 25? 30?
-export  function validatePassword(password: string) {
-  //const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
-
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
-
-  if (!password) {
-    return { isValid: false, message: "Password cannot be empty" };
-  }
-
-  if (password.length < 8) {
-    return { isValid: false, message: "Password must be at least 8 characters long" };
-  }
-
-  if (password.length > 20) {
-    return { isValid: false, message: "Password cannot be longer than 20 characters" };
-  }
-
-  if (!passwordRegex.test(password)) {
-    return { isValid: false, message: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character" };
-  }
-
-  return { isValid: true };
 }
 
 const passwordSchema = z.string()
@@ -52,6 +26,20 @@ const passwordSchema = z.string()
 export function validateZodPassword(password: string) {
   try {
     passwordSchema.parse(password);
+    return { isValid: true };
+  } catch (error) {
+    return { isValid: false, message: error.errors[0].message };
+  }
+}
+
+const nameSchema = z.string()
+  .min(2, "Name must be at least 2 characters long.")
+  .max(50, "Name cannot be longer than 50 characters.")
+  .regex(/^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/, "Name can only contain letters, spaces, and hyphens.");
+
+export function validateZodName(name: string) {
+  try {
+    nameSchema.parse(name);
     return { isValid: true };
   } catch (error) {
     return { isValid: false, message: error.errors[0].message };
@@ -103,6 +91,7 @@ export function validateLastName(name: string) {
   // Alt er i orden
   return { isValid: true };
 }
+
 
 export  function validateMembershipId(membershipId: string) {
   const membershipIdRegex = /^[0-9]+$/;
@@ -161,29 +150,22 @@ export function validateDateOfBirth(date: string) {
   return { isValid: true };
 }
 
-
 export function validatePhoneNumber(phoneNumber: string) {
-  // Trim whitespace for sikkerhed
   const trimmedPhone = phoneNumber.trim();
 
-  // Tjek for tom streng
   if (trimmedPhone === "") {
     return { isValid: false, message: "Phone number cannot be empty" };
   }
 
-  // Hvis præcis 8 tegn: skal være kun tal
+  // If exactly 8 digits: must be a local number
   if (trimmedPhone.length === 8 && /^\d{8}$/.test(trimmedPhone)) {
     return { isValid: true };
   }
 
-  // Hvis præcis 11 tegn: skal starte med + og efterfølges af 10 tal
+ // If starts with + and has 10 digits: must be an international number
   if (trimmedPhone.length === 11 && /^\+\d{10}$/.test(trimmedPhone)) {
     return { isValid: true };
   }
 
-  // Hvis ikke matcher nogen af reglerne, returnér fejl
-  return {
-    isValid: false,
-    message: "Phone number must be 8 digits or start with + followed by 10 digits",
-  };
+  return { isValid: false, message: "Phone number must be 8 digits or start with + followed by 10 digits" };
 }

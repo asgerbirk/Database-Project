@@ -5,8 +5,7 @@ describe("validateDateOfBirth function", () => {
 
 const today = new Date();
 
-const formattedDate = (date: Date) =>
-`${String(date.getDate()).padStart(2, "0")}-${String(date.getMonth() + 1).padStart(2, "0")}-${date.getFullYear()}`;
+const formattedDate = (date: Date) => `${String(date.getDate()).padStart(2, "0")}-${String(date.getMonth() + 1).padStart(2, "0")}-${date.getFullYear()}`;
 
   const validDates = [
     { date: "01-01-2000", age: 23 }, // Normal valid date
@@ -48,19 +47,13 @@ const formattedDate = (date: Date) =>
     const underageDate = "01-01-2010"; // Younger than 16 years
 
     expect(validateDateOfBirth(tooOldDate).isValid).toBe(false);
-    expect(validateDateOfBirth(tooOldDate).message).toBe(
-      "Age cannot exceed 100 years"
-    );
+    expect(validateDateOfBirth(tooOldDate).message).toBe("Age cannot exceed 100 years");
 
     expect(validateDateOfBirth(futureDate).isValid).toBe(false);
-    expect(validateDateOfBirth(futureDate).message).toBe(
-      "Date cannot be in the future"
-    );
+    expect(validateDateOfBirth(futureDate).message).toBe("Date cannot be in the future");
 
     expect(validateDateOfBirth(underageDate).isValid).toBe(false);
-    expect(validateDateOfBirth(underageDate).message).toBe(
-      "Age must be at least 16 years"
-    );
+    expect(validateDateOfBirth(underageDate).message).toBe("Age must be at least 16 years");
   });
 
   it("should handle exact boundaries", () => {

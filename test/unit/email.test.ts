@@ -9,29 +9,29 @@ describe('validateEmail function', () => {
     ];
 
     const invalidEmails = [
-        '',
-        'plainaddress',
-        '@missingusername.com',
-        'missingdomain@.com',
-        'missingatdomain.com',
-        'email@.domain.com',
-        'email@domain..com',
-        'email@domain_com', // Underscore i domænet er ugyldigt
-        'email@-domain.com', // Bindestreg som første tegn i domænet
+        '', // Empty string
+        'plainaddress', // Missing @ and domain
+        '@missingusername.com', // Missing username
+        'missingdomain@.com', // Missing domain
+        'missingatdomain.com', // Missing @
+        'email@.domain.com', // dot after @ 
+        'email@domain..com', // Double dots
+        'email@domain_com', // Underscore in domain & no dot
+        'email@-domain.com',  // Hyphen in domain
     ];
 
     it('should return true for valid emails', () => {
         for (const email of validEmails) {
             const result = validateEmail(email);
-            expect(result.isValid).toBe(true); // Kontrollerer, at isValid er true
+            expect(result.isValid).toBe(true); 
         }
     });
 
     it('should return false for invalid emails', () => {
         for (const email of invalidEmails) {
             const result = validateEmail(email);
-            expect(result.isValid).toBe(false); // Kontrollerer, at isValid er false
-            expect(result.message).toBeDefined(); // Sikrer, at en fejlmeddelelse returneres
+            expect(result.isValid).toBe(false); 
+            expect(result.message).toBeDefined(); 
         }
     });
 
