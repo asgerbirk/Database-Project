@@ -33,7 +33,7 @@ function register() {
     phone: "123456789",
     address: "123 Test Street",
     dateOfBirth: "1990-01-01",
-    membershipId: Math.ceil(Math.random() * 5), // Example MembershipID
+    membershipId: getRandomInt(1, 5), // Random membership ID for test purposes
     emergencyContact: "987654321",
   });
 
