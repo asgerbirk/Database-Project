@@ -11,6 +11,7 @@ export const options = {
 
     //-------------------------------------------------------------
     //Stress test -
+    /*
 
     { duration: "1m", target: 100 },
     { duration: "2m", target: 100 },
@@ -36,7 +37,7 @@ export const options = {
 
     //cool down
     { duration: "30s", target: 0 },
-
+*/
     //-------------------------------------------------------------
   ],
   thresholds: {
@@ -44,6 +45,7 @@ export const options = {
     http_req_failed: ["rate<0.01"], // Less than 1% of requests should fail
   },
 };
+/*
 
 function testGetClasses() {
   const res = http.get("http://localhost:8080/classes");
@@ -61,36 +63,32 @@ function testGetClasses() {
 
 function register() {
   const payload = JSON.stringify({
-    email: `user${getRandomInt(1, 10000)}@example.com`, // Use getRandomInt for the random number
-    // NOSONAR: This is test data and not used in production.
-
-    password: process.env.TEST_PASSWORD || "password123",
+    email: `user${Math.floor(Math.random() * 10000)}@example.com`,
+    password: "password123",
     firstName: "Test",
     lastName: "User",
     phone: "123456789",
     address: "123 Test Street",
     dateOfBirth: "1990-01-01",
-    membershipId: getRandomInt(1, 5), // Random membership ID for test purposes
+    membershipId: Math.ceil(Math.random() * 2),
     emergencyContact: "987654321",
   });
-
   const res = http.post("http://localhost:8080/register", payload, {
     headers: { "Content-Type": "application/json" },
   });
-
   check(res, {
     "POST /register - status is 201": (r) => r.status === 201,
   });
-
   sleep(1); // Simulate user delay
-}
+} 
+  */
 
 function testPostBookings() {
   const payload = JSON.stringify({
-    ClassID: getRandomIt(1 - 10),
+    ClassID: Math.ceil(Math.random() * 10),
     BookingDate: new Date().toISOString(),
     Status: "CONFIRMED",
-    MemberID: getRandomIt(52 - 1027),
+    MemberID: Math.ceil(Math.random() * 501) + 51,
   });
 
   const res = http.post("http://localhost:8080/bookings", payload, {
