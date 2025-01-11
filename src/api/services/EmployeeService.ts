@@ -96,11 +96,11 @@ const createPrismaStrategy = (): DatabaseStrategy => {
     },
 
     update: async (employee: EmployeeInput, id: any) => {
-      const { HireDate, JobTitleID, DepartmentID, Salary, EmploymentStatus } = employee;
+      const { JobTitleID, DepartmentID, Salary, EmploymentStatus } = employee;
       try {
         return await prisma.employees.update({
           where: { EmployeeID: parseInt(id.id) },
-          data: { HireDate: new Date(HireDate), JobTitleID, DepartmentID, Salary, EmploymentStatus },
+          data: { JobTitleID, DepartmentID, Salary, EmploymentStatus },
         });
       } catch (error) {
         console.error(error);

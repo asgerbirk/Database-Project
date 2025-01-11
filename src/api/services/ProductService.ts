@@ -29,7 +29,7 @@ const createPrismaProductStrategy = (): DatabaseStrategy<ProductInput> => {
     getById: async (id: any) => {
       try {
         const product = await prisma.products.findUnique({
-          where: { ProductID: parseInt(id) },
+          where: { ProductID: parseInt(id.id) },
         });
 
         if (!product) {
@@ -79,7 +79,7 @@ const createPrismaProductStrategy = (): DatabaseStrategy<ProductInput> => {
 
       try {
         return await prisma.products.update({
-          where: { ProductID: parseInt(id) },
+          where: { ProductID: parseInt(id.id) },
           data: {
             ProductName,
             Description,
@@ -90,18 +90,18 @@ const createPrismaProductStrategy = (): DatabaseStrategy<ProductInput> => {
         });
       } catch (error) {
         console.error(error);
-        return { error: "Failed to update Product" };
+        return { error: "Failed to update product" };
       }
     },
 
     delete: async (id: any) => {
       try {
         return await prisma.products.delete({
-          where: { ProductID: parseInt(id) },
+          where: { ProductID: parseInt(id.id) },
         });
       } catch (error) {
         console.error(error);
-        return { error: "Failed to delete Product" };
+        return { error: "Failed to delete product" };
       }
     },
   };

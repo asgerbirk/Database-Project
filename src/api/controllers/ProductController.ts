@@ -15,34 +15,52 @@ export async function getAll(req: Request, res: Response) {
 export async function getById(req: Request, res: Response) {
   try {
     const product = await productService.getById(req.params); // Added await
-    res.status(200).send({ product }); // Changed to 200
+    if (product.error) {
+      res.status(404).send({product})
+    }
+    else {
+      res.status(200).send({product});
+    }
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
 }
 
-export async function add(req: Request, res: Response) { // Changed to camelCase
+export async function add(req: Request, res: Response) {
   try {
-    const product = await productService.add(req.body); // Changed method name
-    res.status(201).send({ product });
+    const product = await productService.add(req.body);
+    if (product.error) {
+      res.status(404).send({product})
+    } else {
+      res.status(201).send({product});
+    }
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
 }
 
-export async function update(req: Request, res: Response) { // Changed to camelCase
+export async function update(req: Request, res: Response) {
   try {
-    const product = await productService.update(req.body, req.params); // Changed method name
-    res.status(200).send({ product }); // Changed to 200
+    const product = await productService.update(req.params, req.body); // Changed method name
+    if (product.error) {
+      res.status(404).send({product})
+    } else {
+      res.status(200).send({product});
+    }
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
 }
 
-export async function remove(req: Request, res: Response) { // Renamed to remove, changed to camelCase
+export async function remove(req: Request, res: Response) {
   try {
-    await productService.delete(req.params); // Changed method name
-    res.status(200).send();
+    const serviceRes = await productService.delete(req.params); // Changed method name
+    console.log(serviceRes);
+    if (serviceRes) {
+      res.status(404).send(serviceRes)
+    } else {
+      res.status(200).send(serviceRes);
+    }
   } catch (error) {
     res.status(400).send({ error: error.message });
   }

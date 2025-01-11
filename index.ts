@@ -14,7 +14,7 @@ import { MemberRouter } from "./src/api/routes/MemberRouter.js";
 import { BookingRouter } from "./src/api/routes/BookingRouter.js";
 import { ClassesRouter } from "./src/api/routes/ClassRouter.js";
 import cookieParser from "cookie-parser";
-import {connectToDatabase} from "./src/databases/neo4j/neo4jConnection.js";
+// import {connectToDatabase} from "./src/databases/neo4j/neo4jConnection.js";
 
 const app = express();
 
@@ -67,7 +67,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Middleware to enable Cross-Origin Resource Sharing (CORS)
 app.use(cors());
-connectToDatabase().then(r => r);
+// connectToDatabase().then(r => r);
 
 app.use(
   EmployeeRouter,
