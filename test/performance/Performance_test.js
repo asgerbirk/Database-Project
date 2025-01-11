@@ -61,7 +61,7 @@ function testGetClasses() {
 
 function register() {
   const payload = JSON.stringify({
-    email: `user${Math.floor(Math.random() * 10000)}@example.com`,
+    email: `user${getRandomInt(1, 10000)}@example.com`, // Use getRandomInt for the random number
     // NOSONAR: This is test data and not used in production.
 
     password: process.env.TEST_PASSWORD || "password123",
@@ -87,10 +87,10 @@ function register() {
 
 function testPostBookings() {
   const payload = JSON.stringify({
-    ClassID: Math.ceil(Math.random() * 10),
+    ClassID: getRandomIt(1 - 10),
     BookingDate: new Date().toISOString(),
     Status: "CONFIRMED",
-    MemberID: Math.floor(Math.random() * (1027 - 52 + 1)),
+    MemberID: getRandomIt(52 - 1027),
   });
 
   const res = http.post("http://localhost:8080/bookings", payload, {
