@@ -22,30 +22,6 @@ export const options = {
   */
 };
 
-function register() {
-  const payload = JSON.stringify({
-    email: `user${Math.floor(Math.random() * 10000)}@example.com`,
-    password: "password123",
-    firstName: "Test",
-    lastName: "User",
-    phone: "123456789",
-    address: "123 Test Street",
-    dateOfBirth: "1990-01-01",
-    membershipId: Math.ceil(Math.random() * 5), // Example MembershipID
-    emergencyContact: "987654321",
-  });
-
-  const res = http.post("http://localhost:8080/register", payload, {
-    headers: { "Content-Type": "application/json" },
-  });
-
-  check(res, {
-    "POST /register - status is 201": (r) => r.status === 201,
-  });
-
-  sleep(1); // Simulate user delay
-}
-
 function testGetClasses() {
   const res = http.get("http://localhost:8080/classes");
 
@@ -62,6 +38,4 @@ function testGetClasses() {
 
 export default function () {
   testGetClasses();
-
-  register();
 }

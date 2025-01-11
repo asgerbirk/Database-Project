@@ -46,22 +46,6 @@ function register() {
   sleep(1); // Simulate user delay
 }
 
-function testGetClasses() {
-  const res = http.get("http://localhost:8080/classes");
-
-  check(res, {
-    "GET /classes - status is 200": (r) => r.status === 200,
-    "GET /classes - classes returned": (r) => {
-      const body = r.json();
-      return Array.isArray(body) && body.length > 0;
-    },
-  });
-
-  sleep(1); // Simulate user delay
-}
-
 export default function () {
-  testGetClasses();
-
   register();
 }
