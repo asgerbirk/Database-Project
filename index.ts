@@ -66,8 +66,6 @@ app.use(express.urlencoded({ extended: true }));
 // Middleware to enable Cross-Origin Resource Sharing (CORS)
 app.use(cors());
 
-//connectToDatabase().then((r) => r);
-
 app.use(
   EmployeeRouter,
   MemberRouter,
