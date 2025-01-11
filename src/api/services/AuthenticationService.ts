@@ -87,6 +87,7 @@ export async function register(
       Address: data.address || null,
       DateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
       ImageUrl: imageUrl,
+      Role: "MEMBER",
       member: {
         create: {
           MembershipID: parseInt(data.membershipId),
@@ -104,17 +105,17 @@ export async function register(
 }
 
 export async function createAdminUser(
-    data: {
-      email: string;
-      password: string;
-      firstName?: string;
-      lastName?: string;
-      phone?: string;
-      address?: string;
-      dateOfBirth?: string;
-      imageUrl?: string;
-    },
-    file?: Express.Multer.File // Optional profile picture upload
+  data: {
+    email: string;
+    password: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    address?: string;
+    dateOfBirth?: string;
+    imageUrl?: string;
+  },
+  file?: Express.Multer.File // Optional profile picture upload
 ) {
   // Check if the email is already in use
   const existingUser = await prisma.person.findUnique({
@@ -163,8 +164,6 @@ export async function createAdminUser(
   return adminUser;
 }
 
-
-
 export async function getAllPersons() {
   const getAllPersons = await prisma.person.findMany({
     include: {
@@ -191,8 +190,8 @@ export async function login(data: { email: string; password: string }) {
 
   // Compare the provided password with the stored hashed password
   const isPasswordValid = await bcrypt.compare(
-      data.password,
-      findUserByEmail.Password
+    data.password,
+    findUserByEmail.Password
   );
 
   // If the password is invalid, throw an error
@@ -228,7 +227,6 @@ export async function login(data: { email: string; password: string }) {
   // Return the generated tokens
   return { accessToken, refreshToken };
 }
-
 
 export async function refreshToken(data: { token: string }) {
   try {
