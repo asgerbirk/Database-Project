@@ -7,7 +7,6 @@ const prisma = new PrismaClient();
 describe("Class Service - Integration Tests", () => {
   const classService = createClassService();
 
-  // Testdata
   const sampleClass = {
     ClassName: "Yoga",
     Description: "A relaxing yoga session",
