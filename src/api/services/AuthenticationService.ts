@@ -6,6 +6,7 @@ import {
   PutObjectCommand,
   ServerSideEncryption,
 } from "@aws-sdk/client-s3";
+import { RegistrationSchema } from "../../types/signup.js";
 
 const prisma = new PrismaClient();
 const s3Client = new S3Client({
@@ -33,20 +34,14 @@ const REFRESH_TOKEN_EXPIRATION = process.env.REFRESH_TOKEN_EXPIRATION;
 //Stores user details in the database, including secure fields like the hashed password.
 
 export async function register(
+  // TODO Tag hjælpe funktioner fra Validator.ts i brug
+  data: RegistrationSchema, 
+  /*
   data: {
-    email: string;
-    password: string;
-    firstName?: string;
-    lastName?: string;
-    phone?: string;
-    address?: string;
-    dateOfBirth?: string;
     role?: "ADMIN" | "MEMBER";
-    ImageUrl?: string;
     joinDate?: string;
-    emergencyContact?: string;
-    membershipId: string;
   },
+  */
   file?: Express.Multer.File // Separate the image file
 ) {
   const existingUser = await prisma.person.findUnique({
