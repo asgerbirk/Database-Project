@@ -53,8 +53,6 @@ const createPrismaClassStrategy = (): DatabaseStrategy => {
     // Create a new class
     create: async (data: any) => {
       try {
-        console.log(data);
-
         // Validate required fields
         if (!data.ScheduleDate || !data.StartTime || !data.EndTime) {
           throw new Error("Missing required date or time information");

@@ -36,7 +36,9 @@ const createPrismaProductStrategy = (): DatabaseStrategy<ProductInput> => {
           return { error: "Product not found" };
         }
 
-        return product;
+        return { ...product,
+                 Price: product.Price.toNumber()
+         };
       } catch (error) {
         console.error(error);
         return { error: "Failed to retrieve product" };
@@ -67,17 +69,22 @@ const createPrismaProductStrategy = (): DatabaseStrategy<ProductInput> => {
       const { ProductName, Description, Price, StockQuantity, CategoryID } =
         product;
 
-      try {
-        return await prisma.products.update({
-          where: { ProductID: parseInt(id.id) },
-          data: {
-            ProductName,
-            Description,
-            Price,
-            StockQuantity,
-            CategoryID,
-          },
-        });
+        try {
+          const updatedProduct = await prisma.products.update({
+            where: { ProductID: parseInt(id.id) },
+            data: {
+              ProductName,
+              Description,
+              Price,
+              StockQuantity,
+              CategoryID,
+            },
+          });
+      
+          return {
+            ...updatedProduct,
+            Price: updatedProduct.Price.toNumber(), // Konverter Decimal til Number
+          };
       } catch (error) {
         console.error(error);
         return { error: "Failed to update product" };

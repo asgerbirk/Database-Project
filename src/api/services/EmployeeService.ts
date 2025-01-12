@@ -101,6 +101,7 @@ const createPrismaStrategy = (): DatabaseStrategy => {
         return await prisma.employees.update({
           where: { EmployeeID: parseInt(id.id) },
           data: { JobTitleID, DepartmentID, Salary, EmploymentStatus },
+          include: { jobtitles: true, person: true },
         });
       } catch (error) {
         console.error(error);
