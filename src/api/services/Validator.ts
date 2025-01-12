@@ -1,6 +1,6 @@
 // TODO Opsæt hjælpe funktioner til at validere data til brug i unit tests
 // TODO Hvordan skal retur typerne være her? True/false ? True / false + fejlbesked?
-import { z } from 'zod';
+import { z } from "zod";
 
 // Use of RFC 5322 standard for email validation
 const emailSchema = z.string().email("Invalid email format");
@@ -14,14 +14,17 @@ export function validateEmail(email: string) {
   }
 }
 
-const passwordSchema = z.string()
+const passwordSchema = z
+  .string()
   .min(8, "Password must be at least 8 characters long.")
   .max(20, "Password cannot be longer than 20 characters.")
   .regex(/[A-Z]/, "Password must have at least one uppercase letter.")
   .regex(/[a-z]/, "Password must have at least one lowercase letter.")
   .regex(/\d/, "Password must have at least one number.")
-  .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, "Password must have at least one special character.");
-
+  .regex(
+    /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/,
+    "Password must have at least one special character."
+  );
 
 export function validateZodPassword(password: string) {
   try {
@@ -32,10 +35,14 @@ export function validateZodPassword(password: string) {
   }
 }
 
-const nameSchema = z.string()
+const nameSchema = z
+  .string()
   .min(2, "Name must be at least 2 characters long.")
   .max(50, "Name cannot be longer than 50 characters.")
-  .regex(/^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/, "Name can only contain letters, spaces, and hyphens.");
+  .regex(
+    /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/,
+    "Name can only contain letters, spaces, and hyphens."
+  );
 
 export function validateZodName(name: string) {
   try {
@@ -57,12 +64,18 @@ export function validateFirstName(name: string) {
 
   // Tjek længden
   if (name.length < 2 || name.length > 50) {
-    return { isValid: false, message: "First name must be between 2 and 50 characters" };
+    return {
+      isValid: false,
+      message: "First name must be between 2 and 50 characters",
+    };
   }
 
   // Tjek om navnet matcher regex
   if (!nameRegex.test(name)) {
-    return { isValid: false, message: "First name can only contain letters, spaces, and hyphens" };
+    return {
+      isValid: false,
+      message: "First name can only contain letters, spaces, and hyphens",
+    };
   }
 
   // Alt er i orden
@@ -80,20 +93,25 @@ export function validateLastName(name: string) {
 
   // Tjek længden
   if (name.length < 2 || name.length > 50) {
-    return { isValid: false, message: "Last name must be between 2 and 50 characters" };
+    return {
+      isValid: false,
+      message: "Last name must be between 2 and 50 characters",
+    };
   }
 
   // Tjek om navnet matcher regex
   if (!nameRegex.test(name)) {
-    return { isValid: false, message: "Last name can only contain letters, spaces, and hyphens" };
+    return {
+      isValid: false,
+      message: "Last name can only contain letters, spaces, and hyphens",
+    };
   }
 
   // Alt er i orden
   return { isValid: true };
 }
 
-
-export  function validateMembershipId(membershipId: string) {
+export function validateMembershipId(membershipId: string) {
   const membershipIdRegex = /^[0-9]+$/;
   return membershipIdRegex.test(membershipId);
 }
@@ -124,7 +142,8 @@ export function validateDateOfBirth(date: string) {
     return { isValid: false, message: "Date is not a valid calendar date" };
   }
 
-  const resetTime = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+  const resetTime = (date: Date) =>
+    new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
   const today = resetTime(new Date());
   const birthDate = resetTime(new Date(year, month - 1, day));
 
@@ -162,10 +181,38 @@ export function validatePhoneNumber(phoneNumber: string) {
     return { isValid: true };
   }
 
- // If starts with + and has 10 digits: must be an international number
+  // If starts with + and has 10 digits: must be an international number
   if (trimmedPhone.length === 11 && /^\+\d{10}$/.test(trimmedPhone)) {
     return { isValid: true };
   }
 
-  return { isValid: false, message: "Phone number must be 8 digits or start with + followed by 10 digits" };
+  return {
+    isValid: false,
+    message:
+      "Phone number must be 8 digits or start with + followed by 10 digits",
+  };
+}
+
+export function isClassFull(
+  classData: any,
+  bookingCount: number
+): string | undefined {
+  // 1) If classData is null or undefined, return an error or throw
+  if (!classData) {
+    return "Invalid class data (cannot be null)";
+    // or throw new Error("classData cannot be null");
+  }
+
+  // 2) If MaxParticipants is negative, decide your domain rule
+  if (classData.MaxParticipants <= 0) {
+    return "Invalid negative capacity or 0";
+  }
+
+  // 3) If bookingCount > MaxParticipants => full
+  if (bookingCount > classData.MaxParticipants) {
+    return "Class is already full";
+  }
+
+  // 4) Otherwise, not full
+  return undefined;
 }
