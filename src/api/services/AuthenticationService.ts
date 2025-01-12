@@ -71,6 +71,7 @@ export async function register(
     // Generate a secure URL for the uploaded image
     imageUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${originalName}`;
   }
+  console.log('Data '+data.email);
   const newUser = await prisma.person.create({
     data: {
       Email: data.email,
@@ -94,7 +95,7 @@ export async function register(
       member: true,
     },
   });
-
+  console.log(newUser);
   return newUser;
 }
 

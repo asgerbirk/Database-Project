@@ -14,14 +14,17 @@ export async function register(req: Request, res: Response) {
 }
 
 export async function createAdminUser(req: Request, res: Response) {
-    try {
-        const personData = req.body;
-        const file = req.file;
-        const newUser = await AuthenticationService.createAdminUser(personData, file);
-        res.status(201).send(newUser);
-    } catch (error) {
-        res.status(400).send({ error: error.message });
-    }
+  try {
+    const personData = req.body;
+    const file = req.file;
+    const newUser = await AuthenticationService.createAdminUser(
+      personData,
+      file
+    );
+    res.status(201).send(newUser);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
 }
 
 //Controller for user login.

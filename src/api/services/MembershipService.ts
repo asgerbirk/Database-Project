@@ -28,7 +28,7 @@ const createPrismaMembershipStrategy =
       getById: async (id: any) => {
         try {
           const membership = await prisma.memberships.findUnique({
-            where: { MembershipID: parseInt(id) },
+            where: { MembershipID: parseInt(id.id) },
           });
 
           if (!membership) {
@@ -81,7 +81,7 @@ const createPrismaMembershipStrategy =
 
         try {
           return await prisma.memberships.update({
-            where: { MembershipID: parseInt(id) },
+            where: { MembershipID: parseInt(id.id) },
             data: {
               MembershipName,
               PricePerMonth,
@@ -100,7 +100,7 @@ const createPrismaMembershipStrategy =
       delete: async (id: any) => {
         try {
           return await prisma.memberships.delete({
-            where: { MembershipID: parseInt(id) },
+            where: { MembershipID: parseInt(id.id) },
           });
         } catch (error) {
           console.error(error);
