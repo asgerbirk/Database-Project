@@ -216,3 +216,34 @@ export function isClassFull(
   // 4) Otherwise, not full
   return undefined;
 }
+
+// src/api/services/Validator.ts
+
+/**
+ * Validates the PricePerMonth input.
+ * - Must be a number.
+ * - Must be between 0 and 10000 (adjust as per your business rules).
+ * - Truncates to two decimal places without rounding.
+ * - Returns 0 for invalid inputs.
+ *
+ * @param pricePerMonth - The input value for PricePerMonth.
+ * @returns A validated number for PricePerMonth.
+ */
+export function validatePricePerMonth(pricePerMonth: any): number {
+  const MIN_PRICE = 0;
+  const MAX_PRICE = 10000;
+  //isFinitie only take valid number
+  if (
+    typeof pricePerMonth === "number" &&
+    isFinite(pricePerMonth) &&
+    pricePerMonth >= MIN_PRICE &&
+    pricePerMonth <= MAX_PRICE
+  ) {
+    // Format to two decimal places
+    const formattedPrice = Number(pricePerMonth.toFixed(2));
+    return formattedPrice;
+  }
+
+  // Return 0 for invalid inputs
+  return 0;
+}

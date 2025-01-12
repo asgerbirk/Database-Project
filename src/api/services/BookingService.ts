@@ -74,6 +74,8 @@ export const createPrismaBookingStrategy = (): DatabaseStrategy => {
           },
         });
 
+        //add the validator in here for check maxParticipants
+
         if (existingBooking) {
           return {
             success: false,
