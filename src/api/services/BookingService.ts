@@ -67,7 +67,6 @@ export const createPrismaBookingStrategy = (): DatabaseStrategy => {
     add: async (data) => {
       try {
         // Check if the user has already booked this class
-        // a) Check if the user already booked the class
         const existingBooking = await prisma.bookings.findFirst({
           where: {
             ClassID: data.ClassID,
@@ -75,26 +74,10 @@ export const createPrismaBookingStrategy = (): DatabaseStrategy => {
           },
         });
 
-        // b) Fetch the class record to see if it exists + get MaxParticipants
-        const classData = await prisma.classes.findUnique({
-          where: { ClassID: data.ClassID },
-        });
-
-        // c) Count how many users already booked this class
-        const bookingCount = await prisma.bookings.count({
-          where: { ClassID: data.ClassID },
-        });
-
-        const checkResult = canCreateBooking(
-          existingBooking,
-          classData,
-          bookingCount
-        );
-
-        if (!checkResult.success) {
+        if (existingBooking) {
           return {
             success: false,
-            error: checkResult.errors.join(", "), // combine errors into one string
+            error: "You have already booked this class",
           };
         }
 
