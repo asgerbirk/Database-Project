@@ -3,10 +3,36 @@ import { PrismaClient } from "@prisma/client";
 type DatabaseStrategy = {
   getAll: () => Promise<any[] | { error: string }>;
   getById: (id: number) => Promise<any | { error: string }>;
+
   add: (data: any) => Promise<any | { error: string }>;
   update: (id: number, data: any) => Promise<any | { error: string }>;
   delete: (id: number) => Promise<void | { error: string }>;
 };
+
+export function canCreateBooking(existingBooking, classData, bookingCount) {
+  const errors = [];
+
+  // 1. Already booked?
+  if (existingBooking) {
+    errors.push("You have already booked this class");
+  }
+
+  // 2. Class not found?
+  if (!classData) {
+    errors.push("Class does not exist");
+  } else {
+    // 3. Class is full?
+    if (bookingCount >= classData.MaxParticipants) {
+      errors.push("Class is already full");
+    }
+  }
+
+  // Return an object containing success/failure
+  if (errors.length) {
+    return { success: false, errors };
+  }
+  return { success: true };
+}
 
 export const createPrismaBookingStrategy = (): DatabaseStrategy => {
   const prisma = new PrismaClient();
@@ -41,6 +67,7 @@ export const createPrismaBookingStrategy = (): DatabaseStrategy => {
     add: async (data) => {
       try {
         // Check if the user has already booked this class
+        // a) Check if the user already booked the class
         const existingBooking = await prisma.bookings.findFirst({
           where: {
             ClassID: data.ClassID,
@@ -48,10 +75,26 @@ export const createPrismaBookingStrategy = (): DatabaseStrategy => {
           },
         });
 
-        if (existingBooking) {
+        // b) Fetch the class record to see if it exists + get MaxParticipants
+        const classData = await prisma.classes.findUnique({
+          where: { ClassID: data.ClassID },
+        });
+
+        // c) Count how many users already booked this class
+        const bookingCount = await prisma.bookings.count({
+          where: { ClassID: data.ClassID },
+        });
+
+        const checkResult = canCreateBooking(
+          existingBooking,
+          classData,
+          bookingCount
+        );
+
+        if (!checkResult.success) {
           return {
             success: false,
-            error: "You have already booked this class",
+            error: checkResult.errors.join(", "), // combine errors into one string
           };
         }
 

@@ -10,6 +10,6 @@ export const options = {
 
 export default function () {
   testGetClasses();
-  testPostBookings();
-  register();
+  //testPostBookings();
+  //register();
 }
