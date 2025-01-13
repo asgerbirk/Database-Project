@@ -112,7 +112,6 @@ export const createPrismaBookingStrategy = (): DatabaseStrategy => {
           };
         }
 
-        // Create the booking
         const newBooking = await prisma.bookings.create({
           data: {
             ClassID: data.ClassID,
@@ -122,11 +121,9 @@ export const createPrismaBookingStrategy = (): DatabaseStrategy => {
           },
         });
 
-        // Return a consistent success object
         return { success: true, data: newBooking };
       } catch (error) {
         console.error("Error in bookingService.add:", error);
-        // Return a consistent error object
         return { success: false, error: "Failed to create booking" };
       }
     },
