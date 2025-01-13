@@ -8,13 +8,12 @@ export function validateEmail(email: string) {
     return { isValid: false, message: "Email cannot be empty" };
   }
   try {
-    emailSchema.parse(email); 
+    emailSchema.parse(email);
     return { isValid: true };
   } catch (error) {
     return { isValid: false, message: error.errors[0].message };
   }
 }
-
 
 const passwordSchema = z
   .string()
@@ -59,7 +58,6 @@ export function validateName(name: string) {
   // Tillad kun bogstaver, bindestreger og mellemrum
   const nameRegex = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/;
 
-
   if (!name || name.trim() === "") {
     return { isValid: false, message: "Name cannot be empty" };
   }
@@ -80,7 +78,6 @@ export function validateName(name: string) {
 
   return { isValid: true };
 }
-
 
 export function validateMembershipId(membershipId: string) {
   const membershipIdRegex = /^[0-9]+$/;
@@ -190,16 +187,6 @@ export function isClassFull(
 
 // src/api/services/Validator.ts
 
-/**
- * Validates the PricePerMonth input.
- * - Must be a number.
- * - Must be between 0 and 10000 (adjust as per your business rules).
- * - Truncates to two decimal places without rounding.
- * - Returns 0 for invalid inputs.
- *
- * @param pricePerMonth - The input value for PricePerMonth.
- * @returns A validated number for PricePerMonth.
- */
 export function validatePricePerMonth(pricePerMonth: any): number {
   const MIN_PRICE = 0;
   const MAX_PRICE = 10000;
@@ -218,5 +205,3 @@ export function validatePricePerMonth(pricePerMonth: any): number {
   // Return 0 for invalid inputs
   return 0;
 }
-
-//Create unit test for accesslevel and just for the membership in general.

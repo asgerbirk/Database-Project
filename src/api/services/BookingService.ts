@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { isClassFull } from "../helpers/Validator.js";
 
 type DatabaseStrategy = {
   getAll: () => Promise<any[] | { error: string }>;
@@ -74,12 +75,40 @@ export const createPrismaBookingStrategy = (): DatabaseStrategy => {
           },
         });
 
-        //add the validator in here for check maxParticipants
-
         if (existingBooking) {
           return {
             success: false,
             error: "You have already booked this class",
+          };
+        }
+
+        // 2. Fetch the class data to get MaxParticipants
+        const classData = await prisma.classes.findUnique({
+          where: {
+            ClassID: data.ClassID,
+          },
+        });
+
+        if (!classData) {
+          return {
+            success: false,
+            error: "Class not found",
+          };
+        }
+
+        // 3. Count the current number of bookings for this class
+        const bookingCount = await prisma.bookings.count({
+          where: {
+            ClassID: data.ClassID,
+          },
+        });
+
+        // 4. Validate if the class is full
+        const validationError = isClassFull(classData, bookingCount);
+        if (validationError) {
+          return {
+            success: false,
+            error: validationError,
           };
         }
 

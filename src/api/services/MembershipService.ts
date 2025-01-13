@@ -2,6 +2,8 @@ import { MembershipInput } from "../../types/input-types/MembershipInput.js";
 import { PrismaClient } from "@prisma/client";
 import { MongoDBConnection } from "../../databases/mongoDB/mongoConnection.js";
 import { ObjectId } from "mongodb";
+import { validatePricePerMonth } from "../helpers/Validator.js";
+import Decimal from "decimal.js";
 
 type DatabaseStrategy<T> = {
   getAll: () => Promise<any[] | { error: string }>;
@@ -53,10 +55,17 @@ const createPrismaMembershipStrategy =
         } = membership;
 
         try {
+          const validatedPricePerMonth = validatePricePerMonth(PricePerMonth);
+
+          if (validatedPricePerMonth === 0 && PricePerMonth !== 0) {
+            return { success: false, error: "Invalid PricePerMonth provided." };
+          }
+          const formattedPrice = validatedPricePerMonth.toFixed(2);
+
           return await prisma.memberships.create({
             data: {
               MembershipName,
-              PricePerMonth,
+              PricePerMonth: Number(formattedPrice),
               AccessLevel,
               Duration,
               MaxClassBookings,
@@ -184,10 +193,10 @@ export const createMembershipService = (dbType: "sql" | "mongo") => {
     dbType === "sql"
       ? createPrismaMembershipStrategy()
       : dbType === "mongo"
-      ? createMongoMembershipStrategy()
-      : (() => {
-          throw new Error("Invalid database type");
-        })();
+        ? createMongoMembershipStrategy()
+        : (() => {
+            throw new Error("Invalid database type");
+          })();
 
   return {
     getAll: () => strategy.getAll(),
