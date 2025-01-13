@@ -1,10 +1,10 @@
 import express, { Router } from "express";
 import {
-    getAllBookings,
-    getBookingById,
-    addBooking,
-    updateBooking,
-    deleteBooking,
+  getAllBookings,
+  getBookingById,
+  addBooking,
+  updateBooking,
+  deleteBooking,
 } from "../controllers/BookingController.js";
 
 const router: Router = express.Router();
