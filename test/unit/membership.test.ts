@@ -5,11 +5,14 @@ import { validatePricePerMonth } from "../../src/api/services/Validator"; // Adj
 
 describe("validatePricePerMonth Function", () => {
   const priceProvider = [
+    //valid
     { value: 0, expected: 0 },
     { value: 0.0, expected: 0 },
     { value: 500, expected: 500 },
     { value: 9999.99, expected: 9999.99 }, // Upper boundary valid
     { value: 10000, expected: 10000 }, // Maximum valid price
+
+    //invalid
     { value: 10000.01, expected: 0 }, // Above maximum
     { value: -1, expected: 0 }, // Negative value
     { value: 2500.346, expected: 2500.35 }, //We have used toFixed(2) and that rounds the number up, so 6-9 rounds up and 5-1 do not
