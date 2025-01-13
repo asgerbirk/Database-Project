@@ -21,32 +21,10 @@ jobs:
         with:
           node-version: 20
 
-      - name: Display Secrets
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          PORT: ${{ secrets.PORT }}
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: |
-          echo "DATABASE_URL is $DATABASE_URL"
-          echo "JWT_SECRET is $JWT_SECRET"
-          echo "PORT is $PORT"
-          echo "MONGO_URI is $MONGO_URI"
-
       - name: Install Dependencies
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          PORT: ${{ secrets.PORT }}
-          MONGO_URI: ${{ secrets.MONGO_URI }}
         run: npm ci
 
       - name: Run Build
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          PORT: ${{ secrets.PORT }}
-          MONGO_URI: ${{ secrets.MONGO_URI }}
         run: npm run build
 
       - name: Run Tests
