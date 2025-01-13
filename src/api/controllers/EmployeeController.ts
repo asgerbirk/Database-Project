@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { createEmployeeService } from "../services/EmployeeService.js";
 
 
-const employeeService = createEmployeeService("sql")
+const employeeService = createEmployeeService()
 
 export async function getAll(req: Request, res: Response) {
   try {
