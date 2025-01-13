@@ -7,6 +7,14 @@ import {
   ServerSideEncryption,
 } from "@aws-sdk/client-s3";
 import { RegistrationSchema } from "../../types/signup.js";
+import {
+  validateEmail,
+  validateZodPassword,
+  validateZodName,
+  validatePhoneNumber,
+  validateDateOfBirth,
+  validateMembershipId,
+} from "../helpers/Validator.js";
 
 const prisma = new PrismaClient();
 const s3Client = new S3Client({
@@ -44,6 +52,52 @@ export async function register(
   */
   file?: Express.Multer.File // Separate the image file
 ) {
+
+  // Validering
+  const emailValidation = validateEmail(data.email);
+  if (!emailValidation.isValid) {
+    throw new Error(emailValidation.message);
+  }
+
+  const passwordValidation = validateZodPassword(data.password);
+  if (!passwordValidation.isValid) {
+    throw new Error(passwordValidation.message);
+  }
+
+  if (data.firstName) {
+    const firstNameValidation = validateZodName(data.firstName);
+    if (!firstNameValidation.isValid) {
+      throw new Error(firstNameValidation.message);
+    }
+  }
+
+  if (data.lastName) {
+    const lastNameValidation = validateZodName(data.lastName);
+    if (!lastNameValidation.isValid) {
+      throw new Error(lastNameValidation.message);
+    }
+  }
+
+  if (data.phone) {
+    const phoneValidation = validatePhoneNumber(data.phone);
+    if (!phoneValidation.isValid) {
+      throw new Error(phoneValidation.message);
+    }
+  }
+
+  if (data.dateOfBirth) {
+    const dobValidation = validateDateOfBirth(data.dateOfBirth);
+    if (!dobValidation.isValid) {
+      throw new Error(dobValidation.message);
+    }
+  }
+
+  if (data.membershipId) {
+    if (!validateMembershipId(data.membershipId)) {
+      throw new Error("Invalid membership ID");
+    }
+  }
+  
   if (!data.email){
     throw new Error("Email is required");
   }
@@ -114,6 +168,46 @@ export async function createAdminUser(
   },
   file?: Express.Multer.File // Optional profile picture upload
 ) {
+
+  // Validering
+  const emailValidation = validateEmail(data.email);
+  if (!emailValidation.isValid) {
+    throw new Error(emailValidation.message);
+  }
+
+  const passwordValidation = validateZodPassword(data.password);
+  if (!passwordValidation.isValid) {
+    throw new Error(passwordValidation.message);
+  }
+
+  if (data.firstName) {
+    const firstNameValidation = validateZodName(data.firstName);
+    if (!firstNameValidation.isValid) {
+      throw new Error(firstNameValidation.message);
+    }
+  }
+
+  if (data.lastName) {
+    const lastNameValidation = validateZodName(data.lastName);
+    if (!lastNameValidation.isValid) {
+      throw new Error(lastNameValidation.message);
+    }
+  }
+
+  if (data.phone) {
+    const phoneValidation = validatePhoneNumber(data.phone);
+    if (!phoneValidation.isValid) {
+      throw new Error(phoneValidation.message);
+    }
+  }
+
+  if (data.dateOfBirth) {
+    const dobValidation = validateDateOfBirth(data.dateOfBirth);
+    if (!dobValidation.isValid) {
+      throw new Error(dobValidation.message);
+    }
+  }
+
   // Check if the email is already in use
   const existingUser = await prisma.person.findUnique({
     where: { Email: data.email },

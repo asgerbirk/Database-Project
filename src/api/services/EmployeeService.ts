@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { MongoClient, ObjectId } from "mongodb";
 import { EmployeeInput } from "../../types/input-types/EmployeeInput.js";
 import { MongoDBConnection } from "../../databases/mongoDB/mongoConnection.js";
+import { validateDateOfBirth, validateEmail, validatePhoneNumber, validateZodName } from "../helpers/Validator.js";
 
 // Type definitions
 type DatabaseStrategy = {
@@ -65,6 +66,32 @@ const createPrismaStrategy = (): DatabaseStrategy => {
           Salary,
           EmploymentStatus,
         } = employee;
+
+        // Valider input
+        const firstNameValidation = validateZodName(FirstName);
+        if (!firstNameValidation.isValid) {
+          return { error: firstNameValidation.message };
+        }
+
+        const lastNameValidation = validateZodName(LastName);
+        if (!lastNameValidation.isValid) {
+          return { error: lastNameValidation.message };
+        }
+
+        const emailValidation = validateEmail(Email);
+        if (!emailValidation.isValid) {
+          return { error: emailValidation.message };
+        }
+
+        const phoneValidation = validatePhoneNumber(Phone);
+        if (!phoneValidation.isValid) {
+          return { error: phoneValidation.message };
+        }
+
+        const dobValidation = validateDateOfBirth(DateOfBirth);
+        if (!dobValidation.isValid) {
+          return { error: dobValidation.message };
+        }
 
         // Check if the person already exists
         let person = await prisma.person.findUnique({
