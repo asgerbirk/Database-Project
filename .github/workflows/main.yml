@@ -1,7 +1,12 @@
 name: Test CI Pipeline
 
 on:
-  workflow_dispatch: # Allows you to trigger the workflow manually
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test:
@@ -11,20 +16,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      # Upload the local .env file
-      - name: Upload Local .env File
-        uses: actions/upload-artifact@v3
+      - name: Set Up Node.js
+        uses: actions/setup-node@v2
         with:
-          name: env-file
-          path: .env
+          node-version: 20
 
-      # Download the .env file in the test job
-      - name: Download .env File
-        uses: actions/download-artifact@v3
-        with:
-          name: env-file
-
-      # Load environment variables from .env
       - name: Load Environment Variables from .env
         run: |
           if [ -f .env ]; then

@@ -44,6 +44,9 @@ export async function register(
   */
   file?: Express.Multer.File // Separate the image file
 ) {
+  if (!data.email){
+    throw new Error("Email is required");
+  }
   const existingUser = await prisma.person.findUnique({
     where: { Email: data.email },
   });
