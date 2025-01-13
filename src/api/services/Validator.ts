@@ -214,3 +214,5 @@ export function validatePricePerMonth(pricePerMonth: any): number {
   // Return 0 for invalid inputs
   return 0;
 }
+
+//Create unit test for accesslevel and just for the membership in general.
