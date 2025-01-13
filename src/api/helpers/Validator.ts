@@ -57,20 +57,20 @@ export function validateName(name: string) {
 
 
   if (!name || name.trim() === "") {
-    return { isValid: false, message: "First name cannot be empty" };
+    return { isValid: false, message: "Name cannot be empty" };
   }
 
   if (name.length < 2 || name.length > 50) {
     return {
       isValid: false,
-      message: "First name must be between 2 and 50 characters",
+      message: "Name must be between 2 and 50 characters",
     };
   }
 
   if (!nameRegex.test(name)) {
     return {
       isValid: false,
-      message: "First name can only contain letters, spaces, and hyphens",
+      message: "Name can only contain letters, spaces, and hyphens",
     };
   }
 

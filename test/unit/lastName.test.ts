@@ -24,20 +24,20 @@ describe("validateLastName function", () => {
     const name = "";
     const result = validateName(name);
     expect(result.isValid).toBe(false);
-    expect(result.message).toBe("Last name cannot be empty");
+    expect(result.message).toBe("Name cannot be empty");
   });
 
   it("should return false for names with only whitespace", () => {
     const name = " ";
     const result = validateName(name);
     expect(result.isValid).toBe(false);
-    expect(result.message).toBe("Last name cannot be empty"); 
+    expect(result.message).toBe("Name cannot be empty"); 
   });
 
   it("should return false for names with numbers", () => {
     const name = "Smith1";
     const result = validateName(name);
     expect(result.isValid).toBe(false);
-    expect(result.message).toBe("Last name can only contain letters, spaces, and hyphens"); 
+    expect(result.message).toBe("Name can only contain letters, spaces, and hyphens"); 
   });
 });
