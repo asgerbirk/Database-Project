@@ -52,7 +52,7 @@ describe("Class Service - Integration Tests", () => {
     createdClassIds.length = 0;
   });
 
-  describe("SQL Strategy (Prisma)", () => {
+  describe("Class CRUD", () => {
     it("should create and retrieve a class", async () => {
       const createdClass = await classService.create(sampleClass);
       createdClassIds.push(createdClass.ClassID); 

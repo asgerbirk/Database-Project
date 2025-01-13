@@ -4,6 +4,9 @@ import { z } from "zod";
 const emailSchema = z.string().email("Invalid email format");
 
 export function validateEmail(email: string) {
+  if (!email || email.trim() === "") {
+    return { isValid: false, message: "Email cannot be empty" };
+  }
   try {
     emailSchema.parse(email); 
     return { isValid: true };
@@ -12,13 +15,14 @@ export function validateEmail(email: string) {
   }
 }
 
+
 const passwordSchema = z
   .string()
-  .min(8, "Password must be at least 8 characters long.")
-  .max(20, "Password cannot be longer than 20 characters.")
-  .regex(/[A-Z]/, "Password must have at least one uppercase letter.")
-  .regex(/[a-z]/, "Password must have at least one lowercase letter.")
-  .regex(/\d/, "Password must have at least one number.")
+  .min(8, "Password must be at least 8 characters long")
+  .max(20, "Password cannot be longer than 20 characters")
+  .regex(/[A-Z]/, "Password must have at least one uppercase letter")
+  .regex(/[a-z]/, "Password must have at least one lowercase letter")
+  .regex(/\d/, "Password must have at least one number")
   .regex(
     /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/,
     "Password must have at least one special character."

@@ -4,7 +4,7 @@ import { isClassFull } from "../../src/api/helpers/Validator";
 
 describe("Test of booking - isClassFull function", () => {
   const classFullProvider = [
-    //valind
+    //valid
     {
       description: "bookingCount < MaxParticipants",
       value: { classData: { MaxParticipants: 5 }, bookingCount: 4 },
