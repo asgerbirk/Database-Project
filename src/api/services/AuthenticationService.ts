@@ -97,10 +97,6 @@ export async function register(
       throw new Error("Invalid membership ID");
     }
   }
-  
-  if (!data.email){
-    throw new Error("Email is required");
-  }
   const existingUser = await prisma.person.findUnique({
     where: { Email: data.email },
   });

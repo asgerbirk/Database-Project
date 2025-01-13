@@ -41,12 +41,12 @@ describe("User Creation Integration Tests", () => {
     it("should create a new user with an associated member record", async () => {
         const testData = {
             email: "test-user999@example.com",
-            password: "Hashedpassword123",
+            password: "Hashedpassword123&",
             firstName: "John",
             lastName: "Doe",
-            phone: "1234567890",
+            phone: "20202020",
             address: "123 Test St",
-            dateOfBirth: "1990-01-01",
+            dateOfBirth: "01-01-1990",
             membershipId: 999,
             emergencyContact: "Jane Doe",
             imageUrl: "http://example.com/image.jpg",
@@ -71,7 +71,7 @@ describe("User Creation Integration Tests", () => {
         };
 
         await expect(AuthenticationService.register(invalidData, null)).rejects.toThrowError(
-            "Email is required"
+            "Email cannot be empty"
         );
     });
 });
