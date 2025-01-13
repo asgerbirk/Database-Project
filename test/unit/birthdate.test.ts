@@ -29,7 +29,7 @@ const formattedDate = (date: Date) => `${String(date.getDate()).padStart(2, "0")
   it("should return true for valid dates of birth", () => {
     for (const { date } of validDates) {
       const result = validateDateOfBirth(date);
-      expect(result.isValid).toBe(true); // Tjekker kun isValid
+      expect(result.isValid).toBe(true); 
     }
   });
 

@@ -1,5 +1,3 @@
-// TODO Opsæt hjælpe funktioner til at validere data til brug i unit tests
-// TODO Hvordan skal retur typerne være her? True/false ? True / false + fejlbesked?
 import { z } from "zod";
 
 // Use of RFC 5322 standard for email validation
@@ -7,10 +5,10 @@ const emailSchema = z.string().email("Invalid email format");
 
 export function validateEmail(email: string) {
   try {
-    emailSchema.parse(email); // This will throw if the email is invalid
-    return { isValid: true }; // If no error, email is valid
+    emailSchema.parse(email); 
+    return { isValid: true };
   } catch (error) {
-    return { isValid: false, message: error.errors[0].message }; // Return error message from Zod
+    return { isValid: false, message: error.errors[0].message };
   }
 }
 
@@ -53,16 +51,15 @@ export function validateZodName(name: string) {
   }
 }
 
-export function validateFirstName(name: string) {
+export function validateName(name: string) {
   // Tillad kun bogstaver, bindestreger og mellemrum
   const nameRegex = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/;
 
-  // Tjek om input er tomt eller kun mellemrum
+
   if (!name || name.trim() === "") {
     return { isValid: false, message: "First name cannot be empty" };
   }
 
-  // Tjek længden
   if (name.length < 2 || name.length > 50) {
     return {
       isValid: false,
@@ -70,7 +67,6 @@ export function validateFirstName(name: string) {
     };
   }
 
-  // Tjek om navnet matcher regex
   if (!nameRegex.test(name)) {
     return {
       isValid: false,
@@ -78,38 +74,9 @@ export function validateFirstName(name: string) {
     };
   }
 
-  // Alt er i orden
   return { isValid: true };
 }
 
-export function validateLastName(name: string) {
-  // Regex tillader bogstaver, mellemrum og bindestreger
-  const nameRegex = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/;
-
-  // Tjek om input er tomt eller kun mellemrum
-  if (!name || name.trim() === "") {
-    return { isValid: false, message: "Last name cannot be empty" };
-  }
-
-  // Tjek længden
-  if (name.length < 2 || name.length > 50) {
-    return {
-      isValid: false,
-      message: "Last name must be between 2 and 50 characters",
-    };
-  }
-
-  // Tjek om navnet matcher regex
-  if (!nameRegex.test(name)) {
-    return {
-      isValid: false,
-      message: "Last name can only contain letters, spaces, and hyphens",
-    };
-  }
-
-  // Alt er i orden
-  return { isValid: true };
-}
 
 export function validateMembershipId(membershipId: string) {
   const membershipIdRegex = /^[0-9]+$/;
