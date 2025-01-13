@@ -41,7 +41,6 @@ export async function register(
   */
   file?: Express.Multer.File // Separate the image file
 ) {
-
   // Validering
   const emailValidation = validateEmail(data.email);
   if (!emailValidation.isValid) {
@@ -77,15 +76,19 @@ export async function register(
   if (data.dateOfBirth) {
     const dobValidation = validateDateOfBirth(data.dateOfBirth);
     if (!dobValidation.isValid) {
+      console.log(data.dateOfBirth);
+      console.log("Date of birth validation failed:", dobValidation.message);
       throw new Error(dobValidation.message);
     }
   }
 
   if (data.membershipId) {
     if (!validateMembershipId(data.membershipId)) {
+      console.log("Membership ID validation failed: Invalid membership ID");
       throw new Error("Invalid membership ID");
     }
   }
+
   const existingUser = await prisma.person.findUnique({
     where: { Email: data.email },
   });
@@ -157,17 +160,20 @@ export async function createAdminUser(
   // Validering
   const emailValidation = validateEmail(data.email);
   if (!emailValidation.isValid) {
+    console.log("Email validation failed:", emailValidation.message);
     throw new Error(emailValidation.message);
   }
 
   const passwordValidation = validateZodPassword(data.password);
   if (!passwordValidation.isValid) {
+    console.log("Password validation failed:", passwordValidation.message);
     throw new Error(passwordValidation.message);
   }
 
   if (data.firstName) {
     const firstNameValidation = validateZodName(data.firstName);
     if (!firstNameValidation.isValid) {
+      console.log("First name validation failed:", firstNameValidation.message);
       throw new Error(firstNameValidation.message);
     }
   }
@@ -175,6 +181,7 @@ export async function createAdminUser(
   if (data.lastName) {
     const lastNameValidation = validateZodName(data.lastName);
     if (!lastNameValidation.isValid) {
+      console.log("Last name validation failed:", lastNameValidation.message);
       throw new Error(lastNameValidation.message);
     }
   }
@@ -182,10 +189,10 @@ export async function createAdminUser(
   if (data.phone) {
     const phoneValidation = validatePhoneNumber(data.phone);
     if (!phoneValidation.isValid) {
+      console.log("Phone validation failed:", phoneValidation.message);
       throw new Error(phoneValidation.message);
     }
   }
-
   if (data.dateOfBirth) {
     const dobValidation = validateDateOfBirth(data.dateOfBirth);
     if (!dobValidation.isValid) {
