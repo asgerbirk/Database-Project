@@ -1,6 +1,6 @@
 // isClassFull.test.ts
 import { describe, it, expect } from "vitest";
-import { isClassFull } from "../../src/api/services/Validator";
+import { isClassFull } from "../../src/api/helpers/Validator";
 
 describe("Test of booking - isClassFull function", () => {
   const classFullProvider = [
