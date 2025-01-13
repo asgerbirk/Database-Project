@@ -30,7 +30,7 @@ jobs:
       - name: Run Tests
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_SECRET: ${{ secrets.JWT_TOKEN }}
           PORT: ${{ secrets.PORT }}
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: npm test
