@@ -14,7 +14,8 @@
     "pull": "npx prisma db pull",
     "reset": "npx prisma migrate reset --force && npm run cleanup-indexes",
     "lint": "eslint . --ext .ts",
-    "seed": "node --loader ts-node/esm src/databases/prisma/seed.ts"
+    "seed": "node --loader ts-node/esm src/databases/prisma/seed.ts",
+    "coverage": "vitest run --coverage"
   },
   "prisma": {
     "schema": "./src/databases/prisma/schema.prisma"
