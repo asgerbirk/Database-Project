@@ -82,23 +82,22 @@ const createPrismaMembershipStrategy =
           MembershipName,
           PricePerMonth,
           AccessLevel,
-          Duration,
           MaxClassBookings,
           Description,
         } = membership;
-
         try {
-          return await prisma.memberships.update({
+          const res = await prisma.memberships.update({
             where: { MembershipID: parseInt(id.id) },
             data: {
               MembershipName,
               PricePerMonth,
               AccessLevel,
-              Duration,
               MaxClassBookings,
               Description,
             },
           });
+          console.log(res);
+          return res;
         } catch (error) {
           console.error(error);
           return { error: "Failed to update Membership" };
