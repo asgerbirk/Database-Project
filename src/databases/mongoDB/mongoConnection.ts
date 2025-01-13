@@ -14,7 +14,7 @@ export class MongoDBConnection {
   private static db: Db | null = null;
 
   // Configuration options for MongoClient
-  private static clientOptions = {
+  private static readonly clientOptions = {
     tls: true,
     serverSelectionTimeoutMS: 3000,
     autoSelectFamily: false,
