@@ -21,11 +21,33 @@ jobs:
         with:
           node-version: 20
 
+      - name: Load Environment Variables from .env
+        run: |
+          if [ -f .env ]; then
+            echo "Loading .env file"
+            export $(grep -v '^#' .env | xargs)
+          else
+            echo ".env file not found, skipping"
+          fi
+
       - name: Install Dependencies
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          PORT: ${{ secrets.PORT }}
+          JWT_TOKEN: ${{ secrets.JWT_TOKEN }}
         run: npm ci
 
       - name: Run Build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          PORT: ${{ secrets.PORT }}
+          JWT_TOKEN: ${{ secrets.JWT_TOKEN }}
         run: npm run build
 
       - name: Run Tests
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          PORT: ${{ secrets.PORT }}
+          JWT_TOKEN: ${{ secrets.JWT_TOKEN }}
+          MONGO_URI: ${{ secrets.MONGO_URI}}
         run: npm run test
