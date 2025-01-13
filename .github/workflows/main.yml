@@ -1,4 +1,4 @@
-name: Test CI Pipeline
+name: CI Pipeline with Environment Variable Check
 
 on:
   push:
@@ -21,33 +21,22 @@ jobs:
         with:
           node-version: 20
 
-      - name: Load Environment Variables from .env
-        run: |
-          if [ -f .env ]; then
-            echo "Loading .env file"
-            export $(grep -v '^#' .env | xargs)
-          else
-            echo ".env file not found, skipping"
-          fi
+      - name: Display DATABASE_URL
+        env:
+          DATABASE_URL: ${{ vars.DATABASE_URL }}
+        run: echo "DATABASE_URL is $DATABASE_URL"
 
       - name: Install Dependencies
         env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-          PORT: ${{ env.PORT }}
-          JWT_TOKEN: ${{ env.JWT_TOKEN }}
+          DATABASE_URL: ${{ vars.DATABASE_URL }}
         run: npm ci
 
       - name: Run Build
         env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-          PORT: ${{ env.PORT }}
-          JWT_TOKEN: ${{ env.JWT_TOKEN }}
+          DATABASE_URL: ${{ vars.DATABASE_URL }}
         run: npm run build
 
       - name: Run Tests
         env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-          PORT: ${{ env.PORT }}
-          JWT_TOKEN: ${{ env.JWT_TOKEN }}
-          MONGO_URI: ${{ env.MONGO_URI}}
-        run: npm run test
+          DATABASE_URL: ${{ vars.DATABASE_URL }}
+        run: npm test
