@@ -4,7 +4,6 @@ import "dotenv/config";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./src/config/swaggerConfig.js";
 import { EmployeeRouter } from "./src/api/routes/EmployeeRouter.js";
-// import { mongodbConnect } from "./src/databases/mongoDB/mongoConnection.js";
 import { MembershipRouter } from "./src/api/routes/MembershipRouter.js";
 import { ProductRouter } from "./src/api/routes/ProductRouter.js";
 import cors from "cors";
@@ -15,24 +14,6 @@ import { ClassesRouter } from "./src/api/routes/ClassRouter.js";
 import cookieParser from "cookie-parser";
 
 const app = express();
-
-// Middleware to set security-related HTTP headers
-//Does not work get this error:  TSError: ⨯ Unable to compile TypeScript:
-//but
-/*
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"], // Allow resources from the same origin
-        scriptSrc: ["'self'", "example.com"], // Allow scripts from the same origin and example.com
-        
-      },
-    },
-  })
-);
-*/
-// The CSP header is designed to mitigate attacks such as Cross-Site Scripting (XSS).
 
 /*
 app.use((req, res, next) => {
@@ -76,7 +57,6 @@ app.use(
   ClassesRouter
 );
 
-//mongodbConnect();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const PORT = process.env.PORT || 3000;

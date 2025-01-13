@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import { Add, Delete, getAll, getById, Update } from "../controllers/MembershipController.js";
 
 const router = express.Router();

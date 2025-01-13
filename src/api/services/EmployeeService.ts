@@ -1,7 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { MongoClient, ObjectId } from "mongodb";
 import { EmployeeInput } from "../../types/input-types/EmployeeInput.js";
-import { MongoDBConnection } from "../../databases/mongoDB/mongoConnection.js";
 import { validateDateOfBirth, validateEmail, validatePhoneNumber, validateZodName } from "../helpers/Validator.js";
 
 // Type definitions
@@ -149,82 +147,9 @@ const createPrismaStrategy = (): DatabaseStrategy => {
   };
 };
 
-// MongoDB Database Strategy
-const createMongoStrategy = (collectionName: string = "employees"): DatabaseStrategy => {
-  const getCollection = async () => {
-    return MongoDBConnection.getCollection(collectionName);
-  };
-
-  return {
-    getAll: async () => {
-      try {
-        const collection = await getCollection();
-        return await collection.find({}).toArray();
-      } catch (error) {
-        console.error(error);
-        return { error: "Failed to retrieve employees" };
-      }
-    },
-
-    getById: async (id: any) => {
-      try {
-        const collection = await getCollection();
-        const employee = await collection.findOne({ _id: new ObjectId(id) });
-
-        if (!employee) {
-          return { error: "Employee not found" };
-        }
-
-        return employee;
-      } catch (error) {
-        console.error(error);
-        return { error: "Failed to retrieve employee" };
-      }
-    },
-
-    add: async (employee: EmployeeInput) => {
-      try {
-        const collection = await getCollection();
-        const result = await collection.insertOne(employee);
-        return result.insertedId;
-      } catch (error) {
-        console.error(error);
-        return { error: "Failed to create employee" };
-      }
-    },
-
-    update: async (employee: EmployeeInput, id: any) => {
-      try {
-        const collection = await getCollection();
-        return await collection.updateOne(
-            { _id: new ObjectId(id) },
-            { $set: employee }
-        );
-      } catch (error) {
-        console.error(error);
-        return { error: "Failed to update Employee" };
-      }
-    },
-
-    delete: async (id: any) => {
-      try {
-        const collection = await getCollection();
-        return await collection.deleteOne({ _id: new ObjectId(id) });
-      } catch (error) {
-        console.error(error);
-        return { error: "Failed to delete Employee" };
-      }
-    },
-  };
-};
-
 // Employee Service Factory Function
-export const createEmployeeService = (dbType: "sql" | "mongo") => {
-  const strategy = dbType === "sql"
-      ? createPrismaStrategy()
-      : dbType === "mongo"
-          ? createMongoStrategy()
-          : (() => { throw new Error("Invalid database type"); })();
+export const createEmployeeService = () => {
+  const strategy = createPrismaStrategy();
 
   return {
     getAll: () => strategy.getAll(),

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import EmployeeService, {createEmployeeService} from "../services/EmployeeService.js";
+import { createEmployeeService } from "../services/EmployeeService.js";
 
 
 const employeeService = createEmployeeService("sql")

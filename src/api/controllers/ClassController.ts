@@ -49,7 +49,7 @@ export async function Update(req: Request, res: Response) {
 export async function Delete(req: Request, res: Response) {
     try {
         const { id } = req.params;
-        const deleted = await classService.delete(Number(id));
+        await classService.delete(Number(id));
         res.status(200).json({ message: "Class deleted successfully" });
     } catch (error) {
         res.status(500).json({ error: "Failed to delete the class" });

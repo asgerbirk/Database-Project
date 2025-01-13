@@ -56,7 +56,7 @@ export const updateBooking = async (req: Request, res: Response) => {
 export const deleteBooking = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const result = await bookingService.delete(Number(id));
+        await bookingService.delete(Number(id));
             res.status(204).send();
     } catch (error) {
         res.status(500).json({ error: "Failed to delete booking" });

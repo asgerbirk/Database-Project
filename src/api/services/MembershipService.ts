@@ -3,7 +3,6 @@ import { PrismaClient } from "@prisma/client";
 import { MongoDBConnection } from "../../databases/mongoDB/mongoConnection.js";
 import { ObjectId } from "mongodb";
 import { validatePricePerMonth } from "../helpers/Validator.js";
-import Decimal from "decimal.js";
 
 type DatabaseStrategy<T> = {
   getAll: () => Promise<any[] | { error: string }>;

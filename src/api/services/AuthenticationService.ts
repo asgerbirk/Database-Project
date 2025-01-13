@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
-import { S3Client, PutObjectCommand, ServerSideEncryption } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { RegistrationSchema } from "../../types/signup.js";
 import { validateEmail, validateZodPassword, validateZodName, validatePhoneNumber, validateDateOfBirth, validateMembershipId } from "../helpers/Validator.js";
 
@@ -24,21 +24,8 @@ const REFRESH_TOKEN = process.env.REFRESH_TOKEN_SECRET;
 const JWT_EXPIRATION = process.env.JWT_EXPIRATION;
 const REFRESH_TOKEN_EXPIRATION = process.env.REFRESH_TOKEN_EXPIRATION;
 
-// Function to register a new user.
-//Validates the uniqueness of the email address.
-//Hashes the password using bcrypt.
-//Optionally uploads the user's profile image to S3 with server-side encryption.
-//Stores user details in the database, including secure fields like the hashed password.
-
 export async function register(
-  // TODO Tag hjælpe funktioner fra Validator.ts i brug
   data: RegistrationSchema, 
-  /*
-  data: {
-    role?: "ADMIN" | "MEMBER";
-    joinDate?: string;
-  },
-  */
   file?: Express.Multer.File // Separate the image file
 ) {
 

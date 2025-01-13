@@ -43,16 +43,6 @@ export function generateCsrf(req: Request, res: Response, next: NextFunction) {
 export function verifyCsrf(req: Request, res: Response, next: NextFunction) {
   const csrfSecret = req.cookies[CSRF_SECRET_COOKIE];
   const csrfToken = req.body.csrfToken || req.headers["x-csrf-token"];
-  const origin = req.headers.origin || req.headers.referer;
-
-  // Validate the request origin
-  // Ensure only requests from allowed origins are valid.
-  // WE should replace "https://your-allowed-origin.com" with our acual origin.
-  /*
-  if (!origin || !origin.startsWith("")) {
-    return res.status(403).send({ error: "Invalid origin" });
-  }
-    */
 
   // Check for missing or invalid token
   if (!csrfSecret || !csrf.verify(csrfSecret, csrfToken)) {
