@@ -84,6 +84,7 @@ export function validateMembershipId(membershipId: string) {
   return membershipIdRegex.test(membershipId);
 }
 
+/*
 export function validateDateOfBirth(date: string) {
   const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
 
@@ -136,6 +137,61 @@ export function validateDateOfBirth(date: string) {
 
   return { isValid: true };
 }
+*/
+
+export function validateDateOfBirth(date: string) {
+  const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/; // Accept dd/mm/YYYY
+
+  if (!date || date.trim() === "") {
+    return { isValid: false, message: "Date of birth cannot be empty" };
+  }
+
+  if (!dateRegex.test(date)) {
+    return { isValid: false, message: "Date must be in dd/mm/yyyy format" };
+  }
+
+  const [day, month, year] = date.split("/").map(Number); // Use '/' as separator
+
+  const isValidDate = (d: number, m: number, y: number) => {
+    const dateObj = new Date(y, m - 1, d);
+    return (
+      dateObj.getFullYear() === y &&
+      dateObj.getMonth() === m - 1 &&
+      dateObj.getDate() === d
+    );
+  };
+
+  if (!isValidDate(day, month, year)) {
+    return { isValid: false, message: "Date is not a valid calendar date" };
+  }
+
+  const resetTime = (date: Date) =>
+    new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+  const today = resetTime(new Date());
+  const birthDate = resetTime(new Date(year, month - 1, day));
+
+  if (birthDate > today) {
+    return { isValid: false, message: "Date cannot be in the future" };
+  }
+
+  const age = today.getFullYear() - birthDate.getFullYear();
+  const isBirthdayPassedThisYear =
+    today.getMonth() > birthDate.getMonth() ||
+    (today.getMonth() === birthDate.getMonth() &&
+      today.getDate() >= birthDate.getDate());
+  const adjustedAge = isBirthdayPassedThisYear ? age : age - 1;
+
+  if (adjustedAge < 16) {
+    return { isValid: false, message: "Age must be at least 16 years" };
+  }
+
+  if (adjustedAge > 100) {
+    return { isValid: false, message: "Age cannot exceed 100 years" };
+  }
+
+  return { isValid: true };
+}
+
 
 export function validatePhoneNumber(phoneNumber: string) {
   const trimmedPhone = phoneNumber.trim();

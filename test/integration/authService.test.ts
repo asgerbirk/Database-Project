@@ -46,7 +46,7 @@ describe("User Creation Integration Tests", () => {
             lastName: "Doe",
             phone: "20202020",
             address: "123 Test St",
-            dateOfBirth: "01-01-1990",
+            dateOfBirth: "01/01/1990",
             membershipId: 999,
             emergencyContact: "Jane Doe",
             imageUrl: "http://example.com/image.jpg",

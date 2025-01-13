@@ -1,20 +1,9 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
-import {
-  S3Client,
-  PutObjectCommand,
-  ServerSideEncryption,
-} from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, ServerSideEncryption } from "@aws-sdk/client-s3";
 import { RegistrationSchema } from "../../types/signup.js";
-import {
-  validateEmail,
-  validateZodPassword,
-  validateZodName,
-  validatePhoneNumber,
-  validateDateOfBirth,
-  validateMembershipId,
-} from "../helpers/Validator.js";
+import { validateEmail, validateZodPassword, validateZodName, validatePhoneNumber, validateDateOfBirth, validateMembershipId } from "../helpers/Validator.js";
 
 const prisma = new PrismaClient();
 const s3Client = new S3Client({

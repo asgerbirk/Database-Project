@@ -14,7 +14,7 @@ describe("Employee Service - Integration Tests", () => {
     Email: "john.doe@example.com",
     Phone: "12345678",
     Address: "123 Test Street",
-    DateOfBirth: "01-01-1990",
+    DateOfBirth: "01/01/1990",
     HireDate: "01-01-2022",
     JobTitleID: 1,
     DepartmentID: 1,
