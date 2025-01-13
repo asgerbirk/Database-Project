@@ -1,34 +1,33 @@
 import { validatePhoneNumber } from "../../src/api/services/Validator";
-import { describe, expect, it } from "vitest";
+import { describe, it, expect } from "vitest";
 
-describe("validatePhoneNumber function - Manual Regex", () => {
-  const validPhoneNumbers = [
-    "12345678",    // Local number
-    "+4512345678", // International number
+describe("validatePhoneNumber Function", () => {
+  const phoneNumberProvider = [
+    // Valid phone numbers
+    { value: "12345678", expected: { isValid: true } }, // Local number
+    { value: "+4512345678", expected: { isValid: true } }, // International number
+
+    // Invalid phone numbers
+    { value: "", expected: { isValid: false, message: "Phone number cannot be empty" } }, // Empty input
+    { value: "1234567", expected: { isValid: false, message: "Phone number must be 8 digits or start with + followed by 10 digits" } }, // Too short
+    { value: "+1234567", expected: { isValid: false, message: "Phone number must be 8 digits or start with + followed by 10 digits" } }, // Too short with +
+    { value: "abcdefgh", expected: { isValid: false, message: "Phone number must be 8 digits or start with + followed by 10 digits" } }, // Non-numeric
+    { value: "+451234567", expected: { isValid: false, message: "Phone number must be 8 digits or start with + followed by 10 digits" } }, // Too short with +45
+    { value: "+45123456789", expected: { isValid: false, message: "Phone number must be 8 digits or start with + followed by 10 digits" } }, // Too long with +45
+    { value: "1234567890", expected: { isValid: false, message: "Phone number must be 8 digits or start with + followed by 10 digits" } }, // Too long
   ];
 
-  const invalidPhoneNumbers = [
-    { phone: "", message: "Phone number cannot be empty" }, // Empty input
-    { phone: "1234567", message: "Phone number must be 8 digits or start with + followed by 10 digits" }, // Too short
-    { phone: "+1234567", message: "Phone number must be 8 digits or start with + followed by 10 digits" }, // Too short with +
-    { phone: "abcdefgh", message: "Phone number must be 8 digits or start with + followed by 10 digits" }, // Non-numeric
-    { phone: "+451234567", message: "Phone number must be 8 digits or start with + followed by 10 digits" }, // Too short with +45
-    { phone: "+45123456789", message: "Phone number must be 8 digits or start with + followed by 10 digits" }, // Too long with +45
-    { phone: "1234567890", message: "Phone number must be 8 digits or start with + followed by 10 digits" }, // Too long
-  ];
+  describe.each(phoneNumberProvider)("validatePhoneNumber tests", ({ value, expected }) => {
+    it(`validatePhoneNumber(${JSON.stringify(value)}) should return ${
+      expected.isValid ? "true" : `false with message "${expected.message}"`
+    }`, () => {
+      const result = validatePhoneNumber(value);
+      expect(result.isValid).toBe(expected.isValid);
 
-  it("should return true for valid phone numbers", () => {
-    for (const phoneNumber of validPhoneNumbers) {
-      const result = validatePhoneNumber(phoneNumber);
-      expect(result.isValid).toBe(true);
-    }
+      if (!expected.isValid) {
+        expect(result.message).toBe(expected.message); // Check error message for invalid cases
+      }
+    });
   });
-
-  it("should return false for invalid phone numbers", () => {
-    for (const { phone, message } of invalidPhoneNumbers) {
-      const result = validatePhoneNumber(phone);
-      expect(result.isValid).toBe(false);
-      expect(result.message).toBe(message);
-    }
-  });
+  
 });

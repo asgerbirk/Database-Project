@@ -8,7 +8,6 @@ const prisma = new PrismaClient();
 describe("Employee Service - Integration Tests", () => {
   const sqlService = createEmployeeService("sql");
 
-  // Testdata
   const sampleEmployee: EmployeeInput = {
     FirstName: "John",
     LastName: "Doe",
@@ -23,12 +22,9 @@ describe("Employee Service - Integration Tests", () => {
     EmploymentStatus: "Active",
   };
 
-  // Liste over oprettede medarbejdere til oprydning
   const createdEmployeeIds: number[] = [];
 
-  // Ryd op efter hver test
   afterEach(async () => {
-    // Slet nyoprettede medarbejdere og tilhørende personer
     for (const employeeId of createdEmployeeIds) {
       try {
         const employee = await prisma.employees.findUnique({
@@ -36,12 +32,10 @@ describe("Employee Service - Integration Tests", () => {
         });
   
         if (employee) {
-          // Slet medarbejder
           await prisma.employees.delete({
             where: { EmployeeID: employeeId },
           });
   
-          // Slet person, hvis der ikke er flere referencer til denne
           if (employee.PersonID !== null) {
             const relatedEmployees = await prisma.employees.findMany({
               where: { PersonID: employee.PersonID },
@@ -59,20 +53,17 @@ describe("Employee Service - Integration Tests", () => {
       }
     }
   
-    // Tøm listen over oprettede medarbejdere
     createdEmployeeIds.length = 0;
   });
   
 
-  describe("SQL Strategy (Prisma)", () => {
+  describe("Membership CRUD", () => {
     it("should add and retrieve an employee", async () => {
-      // Tilføj medarbejder
       const createdEmployee = await sqlService.add(sampleEmployee);
-      createdEmployeeIds.push(createdEmployee.EmployeeID); // Tilføj til oprydningslisten
+      createdEmployeeIds.push(createdEmployee.EmployeeID);
 
       expect(createdEmployee).toHaveProperty("EmployeeID");
 
-      // Hent medarbejderen
       const fetchedEmployee = await sqlService.getById({
         id: createdEmployee.EmployeeID,
       });
@@ -88,50 +79,41 @@ describe("Employee Service - Integration Tests", () => {
     });
 
     it("should update an employee", async () => {
-        // Tilføj medarbejder
         const createdEmployee = await sqlService.add(sampleEmployee);
-        createdEmployeeIds.push(createdEmployee.EmployeeID); // Tilføj til oprydningslisten
+        createdEmployeeIds.push(createdEmployee.EmployeeID);
       
-        // Opdater medarbejderen
         const updatedData = { ...sampleEmployee, Salary: 60000 };
         const updatedEmployee = await sqlService.update(
           { id: createdEmployee.EmployeeID },
           updatedData
         );
       
-        // Kontroller at opdatering er sket korrekt
-        expect(Number(updatedEmployee.Salary)).toBe(60000); // Konverter til nummer
+        expect(Number(updatedEmployee.Salary)).toBe(60000); 
       
-        // Hent den opdaterede medarbejder
         const fetchedEmployee = await sqlService.getById({
           id: createdEmployee.EmployeeID,
         });
       
-        // Kontroller at ændringen er korrekt i databasen
-        expect(Number(fetchedEmployee.Salary)).toBe(60000); // Konverter til nummer
+        expect(Number(fetchedEmployee.Salary)).toBe(60000); 
       });
       
 
     it("should delete an employee", async () => {
-      // Tilføj medarbejder
       const createdEmployee = await sqlService.add(sampleEmployee);
-      createdEmployeeIds.push(createdEmployee.EmployeeID); // Tilføj til oprydningslisten
+      createdEmployeeIds.push(createdEmployee.EmployeeID); 
 
-      // Slet medarbejder
       const deleteResult = await sqlService.delete({
         id: createdEmployee.EmployeeID,
       });
 
       expect(deleteResult).toHaveProperty("EmployeeID", createdEmployee.EmployeeID);
 
-      // Tjek at medarbejderen ikke findes
       const fetchedEmployee = await sqlService.getById({
         id: createdEmployee.EmployeeID,
       });
 
       expect(fetchedEmployee).toHaveProperty("error", "Employee not found");
 
-      // Fjern fra oprydningslisten, da den allerede er slettet
       createdEmployeeIds.pop();
     });
   });
