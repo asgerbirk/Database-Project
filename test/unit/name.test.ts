@@ -1,4 +1,4 @@
-import { validateZodName } from "../../src/api/services/Validator";
+import { validateZodName } from "../../src/api/helpers/Validator";
 import { describe, it, expect } from "vitest";
 
 describe("validateName Function", () => {

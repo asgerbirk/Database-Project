@@ -1,5 +1,5 @@
-import { validateZodPassword } from "../../src/api/services/Validator";
-import { describe, it, expect } from "vitest";
+import { validateZodPassword } from "../../src/api/helpers/Validator";
+import { describe, expect, it } from "vitest";
 
 describe("validatePassword Function", () => {
   const passwordProvider = [

@@ -1,5 +1,5 @@
-import { validatePhoneNumber } from "../../src/api/services/Validator";
-import { describe, it, expect } from "vitest";
+import { validatePhoneNumber } from "../../src/api/helpers/Validator";
+import { describe, expect, it } from "vitest";
 
 describe("validatePhoneNumber Function", () => {
   const phoneNumberProvider = [

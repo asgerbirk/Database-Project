@@ -1,5 +1,5 @@
-import { validateEmail } from "../../src/api/services/Validator";
-import { describe, it, expect } from "vitest";
+import { validateEmail } from "../../src/api/helpers/Validator";
+import { describe, expect, it } from "vitest";
 
 describe("validateEmail Function", () => {
   const emailProvider = [

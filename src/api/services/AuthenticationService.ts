@@ -95,7 +95,6 @@ export async function register(
       member: true,
     },
   });
-  console.log(newUser);
   return newUser;
 }
 

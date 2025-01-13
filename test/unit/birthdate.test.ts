@@ -1,7 +1,8 @@
-import { validateDateOfBirth } from "../../src/api/services/Validator";
-import { describe, it, expect } from "vitest";
+import { validateDateOfBirth } from "../../src/api/helpers/Validator";
+import { describe, expect, it } from "vitest";
 
-const today = new Date();
+describe("validateDateOfBirth function", () => {
+  const today = new Date();
 
 const formattedDate = (date: Date) =>
   `${String(date.getDate()).padStart(2, "0")}-${String(date.getMonth() + 1).padStart(2, "0")}-${date.getFullYear()}`;
@@ -46,5 +47,5 @@ describe("validateDateOfBirth Function", () => {
       }
     });
   });
-  
+});
 });

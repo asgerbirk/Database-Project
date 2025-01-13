@@ -1,7 +1,7 @@
 // test/unit/validatePricePerMonth.test.ts
 
 import { describe, it, expect } from "vitest";
-import { validatePricePerMonth } from "../../src/api/services/Validator"; // Adjust the path as needed
+import { validatePricePerMonth } from "../../src/api/helpers/Validator"; // Adjust the path as needed
 
 describe("validatePricePerMonth Function", () => {
   const priceProvider = [
