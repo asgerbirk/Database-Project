@@ -21,6 +21,7 @@ describe("User Creation Integration Tests", () => {
     afterAll(async () => {
         // Clean up test data
         await prisma.person.deleteMany({
+
             where: {
                 Email: {
                     startsWith: "test-",
