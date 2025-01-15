@@ -34,7 +34,3 @@ jobs:
           PORT: ${{ secrets.PORT }}
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: npm test
-
-      # Branch-specific step example
-      - name: Custom Step for exam/2025/asger
-        run: echo "Executing branch-specific custom step."
