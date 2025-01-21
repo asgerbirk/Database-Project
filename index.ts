@@ -12,8 +12,19 @@ import { MemberRouter } from "./src/api/routes/MemberRouter.js";
 import { BookingRouter } from "./src/api/routes/BookingRouter.js";
 import { ClassesRouter } from "./src/api/routes/ClassRouter.js";
 import cookieParser from "cookie-parser";
+import { rateLimit } from "express-rate-limit";
 
 const app = express();
+
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  limit: 5, // Limit to 5 requests per minute
+  standardHeaders: "draft-8", // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+});
+
+// Apply the rate limiting middleware to all requests.
+app.use(limiter);
 
 /*
 app.use((req, res, next) => {

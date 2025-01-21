@@ -61,6 +61,7 @@
     "decimal.js": "^10.4.3",
     "dotenv": "^16.4.5",
     "eslint": "^9.17.0",
+    "express-rate-limit": "^7.5.0",
     "helmet": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.12.0",
