@@ -26,25 +26,21 @@ const limiter = rateLimit({
 // Apply the rate limiting middleware to all requests.
 app.use(limiter);
 
-/*
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
-    `
-    default-src 'self'; 
-    script-src 'self'; 
-    style-src 'self'; 
-    img-src 'self' data:; 
-    object-src 'none'; 
-    base-uri 'self'; 
-    form-action 'self'; 
-    upgrade-insecure-requests; 
-    block-all-mixed-content;
-    `.trim()
+    "default-src 'self'; " +
+      "script-src 'self'; " +
+      "style-src 'self'; " +
+      "img-src 'self' data:; " +
+      "object-src 'none'; " +
+      "base-uri 'self'; " +
+      "form-action 'self'; " +
+      "upgrade-insecure-requests; " +
+      "block-all-mixed-content;"
   );
   next();
 });
-*/
 
 app.use(cookieParser()); // MUST come before any middleware that accesses cookies
 
